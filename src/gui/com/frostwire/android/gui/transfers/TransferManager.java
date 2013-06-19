@@ -23,8 +23,8 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.gudy.azureus2.core3.download.DownloadManager;
-import org.gudy.azureus2.core3.global.GlobalManager;
+//import org.gudy.azureus2.core3.download.DownloadManager;
+//import org.gudy.azureus2.core3.global.GlobalManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -223,7 +223,7 @@ public final class TransferManager {
     }
 
     public long getDownloadsBandwidth() {
-        long torrenDownloadsBandwidth = AzureusManager.isCreated() ? AzureusManager.instance().getGlobalManager().getStats().getDataReceiveRate() / 1000 : 0;
+        long torrenDownloadsBandwidth = 0;// AzureusManager.isCreated() ? AzureusManager.instance().getGlobalManager().getStats().getDataReceiveRate() / 1000 : 0;
 
         long peerDownloadsBandwidth = 0;
         for (DownloadTransfer d : downloads) {
@@ -234,7 +234,7 @@ public final class TransferManager {
     }
 
     public double getUploadsBandwidth() {
-        long torrenUploadsBandwidth = AzureusManager.isCreated() ? AzureusManager.instance().getGlobalManager().getStats().getDataSendRate() / 1000 : 0;
+        long torrenUploadsBandwidth = 0;//AzureusManager.isCreated() ? AzureusManager.instance().getGlobalManager().getStats().getDataSendRate() / 1000 : 0;
 
         long peerUploadsBandwidth = 0;
         for (UploadTransfer u : uploads) {
@@ -271,23 +271,23 @@ public final class TransferManager {
             return;
         }
 
-        GlobalManager globalManager = AzureusManager.instance().getAzureusCore().getGlobalManager();
-        List<?> downloadManagers = globalManager.getDownloadManagers();
-
-        List<DownloadManager> downloads = new ArrayList<DownloadManager>();
-        for (Object obj : downloadManagers) {
-            if (obj instanceof DownloadManager) {
-                try {
-                    if (((DownloadManager) obj).getTorrent() != null && ((DownloadManager) obj).getTorrent().getHash() != null) {
-                        LOG.debug("Loading torrent with hash: " + ByteUtils.encodeHex(((DownloadManager) obj).getTorrent().getHash()));
-                        downloads.add((DownloadManager) obj);
-                    }
-                } catch (Throwable e) {
-                    // ignore
-                    LOG.debug("error loading torrent (not the end of the world, keep going)");
-                }
-            }
-        }
+//        GlobalManager globalManager = AzureusManager.instance().getAzureusCore().getGlobalManager();
+//        List<?> downloadManagers = globalManager.getDownloadManagers();
+//
+//        List<DownloadManager> downloads = new ArrayList<DownloadManager>();
+//        for (Object obj : downloadManagers) {
+//            if (obj instanceof DownloadManager) {
+//                try {
+//                    if (((DownloadManager) obj).getTorrent() != null && ((DownloadManager) obj).getTorrent().getHash() != null) {
+//                        LOG.debug("Loading torrent with hash: " + ByteUtils.encodeHex(((DownloadManager) obj).getTorrent().getHash()));
+//                        downloads.add((DownloadManager) obj);
+//                    }
+//                } catch (Throwable e) {
+//                    // ignore
+//                    LOG.debug("error loading torrent (not the end of the world, keep going)");
+//                }
+//            }
+//        }
 
         boolean stop = false;
         if (!ConfigurationManager.instance().getBoolean(Constants.PREF_KEY_TORRENT_SEED_FINISHED_TORRENTS)) {
@@ -298,13 +298,13 @@ public final class TransferManager {
             }
         }
 
-        for (DownloadManager dm : downloads) {
-            if (stop && TorrentUtil.isComplete(dm)) {
-                TorrentUtil.stop(dm);
-            }
-
-            bittorrentDownloads.add(BittorrentDownloadCreator.create(this, dm));
-        }
+//        for (DownloadManager dm : downloads) {
+//            if (stop && TorrentUtil.isComplete(dm)) {
+//                TorrentUtil.stop(dm);
+//            }
+//
+//            bittorrentDownloads.add(BittorrentDownloadCreator.create(this, dm));
+//        }
     }
 
     List<BittorrentDownload> getBittorrentDownloads() {
@@ -330,33 +330,35 @@ public final class TransferManager {
     }
 
     public BittorrentDownload downloadTorrent(String uri) {
-        try {
-            BittorrentDownload download = BittorrentDownloadCreator.create(this, new URI(uri));
-
-            if (!(download instanceof InvalidBittorrentDownload)) {
-                bittorrentDownloads.add(download);
-            }
-
-            return download;
-        } catch (Throwable e) {
-            LOG.warn("Error creating download from uri: " + uri);
-            return new InvalidBittorrentDownload(R.string.empty_string);
-        }
+//        try {
+//            BittorrentDownload download = BittorrentDownloadCreator.create(this, new URI(uri));
+//
+//            if (!(download instanceof InvalidBittorrentDownload)) {
+//                bittorrentDownloads.add(download);
+//            }
+//
+//            return download;
+//        } catch (Throwable e) {
+//            LOG.warn("Error creating download from uri: " + uri);
+//            return new InvalidBittorrentDownload(R.string.empty_string);
+//        }
+        return null;
     }
 
     private BittorrentDownload newBittorrentDownload(TorrentSearchResult sr) {
-        try {
-            BittorrentDownload download = BittorrentDownloadCreator.create(this, sr);
-
-            if (!(download instanceof InvalidBittorrentDownload)) {
-                bittorrentDownloads.add(download);
-            }
-
-            return download;
-        } catch (Throwable e) {
-            LOG.warn("Error creating download from search result: " + sr);
-            return new InvalidBittorrentDownload(R.string.empty_string);
-        }
+//        try {
+//            BittorrentDownload download = BittorrentDownloadCreator.create(this, sr);
+//
+//            if (!(download instanceof InvalidBittorrentDownload)) {
+//                bittorrentDownloads.add(download);
+//            }
+//
+//            return download;
+//        } catch (Throwable e) {
+//            LOG.warn("Error creating download from search result: " + sr);
+//            return new InvalidBittorrentDownload(R.string.empty_string);
+//        }
+        return null;
     }
 
     private HttpDownload newHttpDownload(HttpSlideSearchResult sr) {

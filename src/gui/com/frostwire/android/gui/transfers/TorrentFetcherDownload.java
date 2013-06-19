@@ -24,9 +24,9 @@ import java.util.Date;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import org.gudy.azureus2.core3.torrentdownloader.TorrentDownloader;
-import org.gudy.azureus2.core3.torrentdownloader.TorrentDownloaderCallBackInterface;
-import org.gudy.azureus2.core3.torrentdownloader.TorrentDownloaderFactory;
+//import org.gudy.azureus2.core3.torrentdownloader.TorrentDownloader;
+//import org.gudy.azureus2.core3.torrentdownloader.TorrentDownloaderCallBackInterface;
+//import org.gudy.azureus2.core3.torrentdownloader.TorrentDownloaderFactory;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,7 +47,7 @@ public class TorrentFetcherDownload implements BittorrentDownload {
     private final Date dateCreated;
 
     private int statusResId;
-    private final TorrentDownloader torrentDownloader;
+    //private final TorrentDownloader torrentDownloader;
 
     private BittorrentDownload delegate;
 
@@ -59,8 +59,8 @@ public class TorrentFetcherDownload implements BittorrentDownload {
         this.dateCreated = new Date();
 
         this.statusResId = R.string.torrent_fetcher_download_status_downloading_torrent;
-        this.torrentDownloader = TorrentDownloaderFactory.create(new TorrentDownloaderListener(), info.getTorrentUrl(), info.getDetailsUrl(), null);
-        this.torrentDownloader.start();
+//        this.torrentDownloader = TorrentDownloaderFactory.create(new TorrentDownloaderListener(), info.getTorrentUrl(), info.getDetailsUrl(), null);
+//        this.torrentDownloader.start();
     }
 
     public BittorrentDownload getDelegate() {
@@ -176,13 +176,13 @@ public class TorrentFetcherDownload implements BittorrentDownload {
         } else {
             removed = true;
             try {
-                torrentDownloader.cancel();
+                //torrentDownloader.cancel();
             } catch (Throwable e) {
                 // ignore, I can't do anything
                 LOG.error("Error canceling torrent downloader",e);
             }
             try {
-                torrentDownloader.getFile().delete();
+                //torrentDownloader.getFile().delete();
             } catch (Throwable e) {
                 // ignore, I can't do anything
                 LOG.error("Error deleting file of torrent downloader",e);
@@ -203,36 +203,36 @@ public class TorrentFetcherDownload implements BittorrentDownload {
         }
     }
 
-    private final class TorrentDownloaderListener implements TorrentDownloaderCallBackInterface {
-
-        private AtomicBoolean finished = new AtomicBoolean(false);
-
-        public void TorrentDownloaderEvent(int state, final TorrentDownloader inf) {
-            if (removed) {
-                return;
-            }
-            if (state == TorrentDownloader.STATE_FINISHED && finished.compareAndSet(false, true)) {
-                try {
-
-                    delegate = BittorrentDownloadCreator.create(manager, inf.getFile().getAbsolutePath(), null, info.getRelativePath());
-
-                    if (delegate instanceof InvalidBittorrentDownload) {
-                        cancel();
-                    }
-
-                    if (delegate == null) {
-                        LOG.error("Error creating the actual torrent download, delegate after creation is null");
-                    }
-
-                } catch (Throwable e) {
-                    statusResId = R.string.torrent_fetcher_download_status_error;
-                    LOG.error("Error creating the actual torrent download", e);
-                }
-            } else if (state == TorrentDownloader.STATE_ERROR) {
-                statusResId = R.string.torrent_fetcher_download_status_error;
-            }
-        }
-    }
+//    private final class TorrentDownloaderListener implements TorrentDownloaderCallBackInterface {
+//
+//        private AtomicBoolean finished = new AtomicBoolean(false);
+//
+//        public void TorrentDownloaderEvent(int state, final TorrentDownloader inf) {
+//            if (removed) {
+//                return;
+//            }
+////            if (state == TorrentDownloader.STATE_FINISHED && finished.compareAndSet(false, true)) {
+////                try {
+////
+////                    delegate = BittorrentDownloadCreator.create(manager, inf.getFile().getAbsolutePath(), null, info.getRelativePath());
+////
+////                    if (delegate instanceof InvalidBittorrentDownload) {
+////                        cancel();
+////                    }
+////
+////                    if (delegate == null) {
+////                        LOG.error("Error creating the actual torrent download, delegate after creation is null");
+////                    }
+////
+////                } catch (Throwable e) {
+////                    statusResId = R.string.torrent_fetcher_download_status_error;
+////                    LOG.error("Error creating the actual torrent download", e);
+////                }
+////            } else if (state == TorrentDownloader.STATE_ERROR) {
+////                statusResId = R.string.torrent_fetcher_download_status_error;
+////            }
+//        }
+//    }
 
     @Override
     public List<? extends BittorrentDownloadItem> getBittorrentItems() {

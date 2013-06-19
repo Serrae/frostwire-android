@@ -21,7 +21,7 @@ package com.frostwire.android.gui.transfers;
 import java.io.File;
 
 import org.apache.commons.io.FilenameUtils;
-import org.gudy.azureus2.core3.disk.DiskManagerFileInfo;
+//import org.gudy.azureus2.core3.disk.DiskManagerFileInfo;
 
 /**
  * @author gubatron
@@ -30,34 +30,64 @@ import org.gudy.azureus2.core3.disk.DiskManagerFileInfo;
  */
 final class AzureusBittorrentDownloadItem implements BittorrentDownloadItem {
 
-    private final DiskManagerFileInfo fileInfo;
-
-    public AzureusBittorrentDownloadItem(DiskManagerFileInfo fileInfo) {
-        this.fileInfo = fileInfo;
-    }
-
     @Override
     public String getDisplayName() {
-        return FilenameUtils.getBaseName(fileInfo.getFile(false).getName());
-    }
-
-    @Override
-    public File getSavePath() {
-        return fileInfo.getFile(false);
+        // TODO Auto-generated method stub
+        return null;
     }
 
     @Override
     public int getProgress() {
-        return isComplete() ? 100 : (int) ((fileInfo.getDownloaded() * 100) / fileInfo.getLength());
+        // TODO Auto-generated method stub
+        return 0;
     }
 
     @Override
     public long getSize() {
-        return fileInfo.getLength();
+        // TODO Auto-generated method stub
+        return 0;
     }
 
     @Override
     public boolean isComplete() {
-        return fileInfo.getDownloaded() == fileInfo.getLength();
+        // TODO Auto-generated method stub
+        return false;
     }
+
+    @Override
+    public File getSavePath() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+//    private final DiskManagerFileInfo fileInfo;
+//
+//    public AzureusBittorrentDownloadItem(DiskManagerFileInfo fileInfo) {
+//        this.fileInfo = fileInfo;
+//    }
+//
+//    @Override
+//    public String getDisplayName() {
+//        return FilenameUtils.getBaseName(fileInfo.getFile(false).getName());
+//    }
+//
+//    @Override
+//    public File getSavePath() {
+//        return fileInfo.getFile(false);
+//    }
+//
+//    @Override
+//    public int getProgress() {
+//        return isComplete() ? 100 : (int) ((fileInfo.getDownloaded() * 100) / fileInfo.getLength());
+//    }
+//
+//    @Override
+//    public long getSize() {
+//        return fileInfo.getLength();
+//    }
+//
+//    @Override
+//    public boolean isComplete() {
+//        return fileInfo.getDownloaded() == fileInfo.getLength();
+//    }
 }

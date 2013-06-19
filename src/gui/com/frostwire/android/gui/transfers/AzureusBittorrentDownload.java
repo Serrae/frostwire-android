@@ -26,11 +26,11 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.io.FilenameUtils;
-import org.gudy.azureus2.core3.disk.DiskManagerFileInfo;
-import org.gudy.azureus2.core3.download.DownloadManager;
-import org.gudy.azureus2.core3.tracker.client.TRTrackerScraperResponse;
-import org.gudy.azureus2.core3.util.Constants;
-import org.gudy.azureus2.core3.util.DisplayFormatters;
+//import org.gudy.azureus2.core3.disk.DiskManagerFileInfo;
+//import org.gudy.azureus2.core3.download.DownloadManager;
+//import org.gudy.azureus2.core3.tracker.client.TRTrackerScraperResponse;
+//import org.gudy.azureus2.core3.util.Constants;
+//import org.gudy.azureus2.core3.util.DisplayFormatters;
 
 import android.util.Log;
 
@@ -43,340 +43,514 @@ final class AzureusBittorrentDownload implements BittorrentDownload {
 
     private static final String TAG = "FW.AzureusBittorrentDownload";
 
-    private final TransferManager manager;
-    private DownloadManager downloadManager;
-
-    private List<BittorrentDownloadItem> items;
-    private String hash;
-    private boolean partialDownload;
-    private Set<DiskManagerFileInfo> fileInfoSet;
-    private long size;
-    private String displayName;
-
-    public AzureusBittorrentDownload(TransferManager manager, DownloadManager downloadManager) {
-        this.manager = manager;
-        this.downloadManager = downloadManager;
-
-        try {
-            hash = TorrentUtil.hashToString(downloadManager.getTorrent().getHash());
-        } catch (Throwable e) {
-            Log.e(TAG, String.format("Error getting hash %s", e.getMessage()));
-            hash = "";
-        }
-
-        fileInfoSet = TorrentUtil.getNoSkippedFileInfoSet(downloadManager);
-        partialDownload = !TorrentUtil.getSkippedFiles(downloadManager).isEmpty();
-
-        if (partialDownload) {
-            if (fileInfoSet.isEmpty()) {
-                size = downloadManager.getSize();
-            } else {
-                size = 0;
-                for (DiskManagerFileInfo fileInfo : fileInfoSet) {
-                    size += fileInfo.getLength();
-                }
-            }
-        } else {
-            size = downloadManager.getSize();
-        }
-
-        if (fileInfoSet.size() == 1) {
-            displayName = FilenameUtils.getBaseName(fileInfoSet.toArray(new DiskManagerFileInfo[0])[0].getFile(false).getName());
-        } else {
-            displayName = downloadManager.getDisplayName();
-        }
-
-        items = new ArrayList<BittorrentDownloadItem>(fileInfoSet.size());
-        for (DiskManagerFileInfo fileInfo : fileInfoSet) {
-            items.add(new AzureusBittorrentDownloadItem(fileInfo));
-        }
-    }
-
-    public String getDisplayName() {
-        return displayName;
-    }
-
-    public String getStatus() {
-        return DisplayFormatters.formatDownloadStatus(downloadManager);
-    }
-
-    public int getProgress() {
-        if (isComplete()) {
-            return 100;
-        }
-
-        if (partialDownload) {
-            long downloaded = 0;
-            for (DiskManagerFileInfo fileInfo : fileInfoSet) {
-                downloaded += fileInfo.getDownloaded();
-            }
-            return (int) ((downloaded * 100) / size);
-        } else {
-            return downloadManager.getStats().getDownloadCompleted(true) / 10;
-        }
-    }
-
-    public long getSize() {
-        return size;
-    }
-
-    public boolean isResumable() {
-        return TorrentUtil.isStartable(downloadManager);
-    }
-
-    public boolean isPausable() {
-        return TorrentUtil.isStopable(downloadManager);
-    }
-
-    public boolean isComplete() {
-        return TorrentUtil.isComplete(downloadManager);
-    }
-
-    public boolean isDownloading() {
-        return downloadManager.getState() == DownloadManager.STATE_DOWNLOADING;
-    }
-
-    public boolean isSeeding() {
-        return downloadManager.getState() == DownloadManager.STATE_SEEDING;
-    }
-
-    public List<? extends BittorrentDownloadItem> getItems() {
-        if (items.size() == 1) {
-            return Collections.emptyList();
-        }
-        return items;
-    }
-
-    public void pause() {
-        if (isPausable()) {
-            TorrentUtil.stop(downloadManager);
-        }
-    }
-
-    public void resume() {
-        if (isResumable()) {
-            TorrentUtil.start(downloadManager);
-        }
-    }
-
+    @Override
     public File getSavePath() {
-        return downloadManager.getSaveLocation();
+        // TODO Auto-generated method stub
+        return null;
     }
 
-    public long getBytesReceived() {
-        return downloadManager.getStats().getTotalGoodDataBytesReceived();
+    @Override
+    public boolean isDownloading() {
+        // TODO Auto-generated method stub
+        return false;
     }
 
-    public long getBytesSent() {
-        return downloadManager.getStats().getTotalDataBytesSent();
+    @Override
+    public void cancel(boolean deleteData) {
+        // TODO Auto-generated method stub
+        
     }
 
-    public long getDownloadSpeed() {
-        return downloadManager.getStats().getDataReceiveRate();// / 1000;
+    @Override
+    public String getDisplayName() {
+        // TODO Auto-generated method stub
+        return null;
     }
 
-    public long getUploadSpeed() {
-        return downloadManager.getStats().getDataSendRate() / 1000;
+    @Override
+    public String getStatus() {
+        // TODO Auto-generated method stub
+        return null;
     }
 
-    public long getETA() {
-        return downloadManager.getStats().getETA();
+    @Override
+    public int getProgress() {
+        // TODO Auto-generated method stub
+        return 0;
     }
 
+    @Override
+    public long getSize() {
+        // TODO Auto-generated method stub
+        return 0;
+    }
+
+    @Override
     public Date getDateCreated() {
-        return new Date(downloadManager.getCreationTime());
+        // TODO Auto-generated method stub
+        return null;
     }
 
-    public String getPeers() {
-        long lTotalPeers = -1;
-        long lConnectedPeers = 0;
-        if (downloadManager != null) {
-            lConnectedPeers = downloadManager.getNbPeers();
-
-            if (lTotalPeers == -1) {
-                TRTrackerScraperResponse response = downloadManager.getTrackerScrapeResponse();
-                if (response != null && response.isValid()) {
-                    lTotalPeers = response.getPeers();
-                }
-            }
-        }
-
-        long totalPeers = lTotalPeers;
-        if (totalPeers <= 0) {
-            DownloadManager dm = downloadManager;
-            if (dm != null) {
-                totalPeers = dm.getActivationCount();
-            }
-        }
-
-        //        long value = lConnectedPeers * 10000000;
-        //        if (totalPeers > 0)
-        //            value = value + totalPeers;
-
-        int state = downloadManager.getState();
-        boolean started = state == DownloadManager.STATE_SEEDING || state == DownloadManager.STATE_DOWNLOADING;
-        boolean hasScrape = lTotalPeers >= 0;
-
-        String tmp;
-        if (started) {
-            tmp = hasScrape ? (lConnectedPeers > lTotalPeers ? "%1" : "%1 " + "/" + " %2") : "%1";
-        } else {
-            tmp = hasScrape ? "%2" : "";
-        }
-
-        tmp = tmp.replaceAll("%1", String.valueOf(lConnectedPeers));
-        tmp = tmp.replaceAll("%2", String.valueOf(totalPeers));
-
-        return tmp;
+    @Override
+    public long getBytesReceived() {
+        // TODO Auto-generated method stub
+        return 0;
     }
 
-    public String getSeeds() {
-        long lTotalSeeds = -1;
-        //long lTotalPeers = 0;
-        long lConnectedSeeds = 0;
-        DownloadManager dm = downloadManager;
-        if (dm != null) {
-            lConnectedSeeds = dm.getNbSeeds();
-
-            if (lTotalSeeds == -1) {
-                TRTrackerScraperResponse response = dm.getTrackerScrapeResponse();
-                if (response != null && response.isValid()) {
-                    lTotalSeeds = response.getSeeds();
-                    //lTotalPeers = response.getPeers();
-                }
-            }
-        }
-
-        //        // Allows for 2097151 of each type (connected seeds, seeds, peers)
-        //        long value = (lConnectedSeeds << 42);
-        //        if (lTotalSeeds > 0)
-        //            value += (lTotalSeeds << 21);
-        //        if (lTotalPeers > 0)
-        //            value += lTotalPeers;
-
-        //boolean bCompleteTorrent = dm == null ? false : dm.getAssumedComplete();
-
-        int state = dm.getState();
-        boolean started = (state == DownloadManager.STATE_SEEDING || state == DownloadManager.STATE_DOWNLOADING);
-        boolean hasScrape = lTotalSeeds >= 0;
-        String tmp;
-
-        if (started) {
-            tmp = hasScrape ? (lConnectedSeeds > lTotalSeeds ? "%1" : "%1 " + "/" + " %2") : "%1";
-        } else {
-            tmp = hasScrape ? "%2" : "";
-        }
-        tmp = tmp.replaceAll("%1", String.valueOf(lConnectedSeeds));
-        String param2 = "?";
-        if (lTotalSeeds != -1) {
-            param2 = String.valueOf(lTotalSeeds);
-        }
-        tmp = tmp.replaceAll("%2", param2);
-
-        return tmp;
+    @Override
+    public long getBytesSent() {
+        // TODO Auto-generated method stub
+        return 0;
     }
 
-    public String getHash() {
-        return hash;
+    @Override
+    public long getDownloadSpeed() {
+        // TODO Auto-generated method stub
+        return 0;
     }
 
-    public String getSeedToPeerRatio() {
-        float ratio = -1;
-
-        DownloadManager dm = downloadManager;
-        if (dm != null) {
-            TRTrackerScraperResponse response = dm.getTrackerScrapeResponse();
-            int seeds;
-            int peers;
-
-            if (response != null && response.isValid()) {
-                seeds = Math.max(dm.getNbSeeds(), response.getSeeds());
-
-                int trackerPeerCount = response.getPeers();
-                peers = dm.getNbPeers();
-                if (peers == 0 || trackerPeerCount > peers) {
-                    if (trackerPeerCount <= 0) {
-                        peers = dm.getActivationCount();
-                    } else {
-                        peers = trackerPeerCount;
-                    }
-                }
-            } else {
-                seeds = dm.getNbSeeds();
-                peers = dm.getNbPeers();
-            }
-
-            if (peers < 0 || seeds < 0) {
-                ratio = 0;
-            } else {
-                if (peers == 0) {
-                    if (seeds == 0)
-                        ratio = 0;
-                    else
-                        ratio = Float.POSITIVE_INFINITY;
-                } else {
-                    ratio = (float) seeds / peers;
-                }
-            }
-        }
-
-        if (ratio == -1) {
-            return "";
-        } else if (ratio == 0) {
-            return "??";
-        } else {
-            return DisplayFormatters.formatDecimal(ratio, 3);
-        }
+    @Override
+    public long getUploadSpeed() {
+        // TODO Auto-generated method stub
+        return 0;
     }
 
-    public String getShareRatio() {
-        DownloadManager dm = downloadManager;
+    @Override
+    public long getETA() {
+        // TODO Auto-generated method stub
+        return 0;
+    }
 
-        int sr = (dm == null) ? 0 : dm.getStats().getShareRatio();
+    @Override
+    public boolean isComplete() {
+        // TODO Auto-generated method stub
+        return false;
+    }
 
-        if (sr == Integer.MAX_VALUE) {
-            sr = Integer.MAX_VALUE - 1;
-        }
-        if (sr == -1) {
-            sr = Integer.MAX_VALUE;
-        }
-
-        String shareRatio = "";
-
-        if (sr == Integer.MAX_VALUE) {
-            shareRatio = Constants.INFINITY_STRING;
-        } else {
-            shareRatio = DisplayFormatters.formatDecimal((double) sr / 1000, 3);
-        }
-
-        return shareRatio;
+    @Override
+    public List<? extends TransferItem> getItems() {
+        // TODO Auto-generated method stub
+        return null;
     }
 
     @Override
     public void cancel() {
-        cancel(false);
+        // TODO Auto-generated method stub
+        
     }
 
-    public void cancel(boolean deleteData) {
-        cancel(deleteData, true);
+    @Override
+    public String getDetailsUrl() {
+        // TODO Auto-generated method stub
+        return null;
     }
 
+    @Override
+    public String getHash() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public String getPeers() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public String getSeeds() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public String getSeedToPeerRatio() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public String getShareRatio() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public boolean isResumable() {
+        // TODO Auto-generated method stub
+        return false;
+    }
+
+    @Override
+    public boolean isPausable() {
+        // TODO Auto-generated method stub
+        return false;
+    }
+
+    @Override
+    public boolean isSeeding() {
+        // TODO Auto-generated method stub
+        return false;
+    }
+
+    @Override
+    public void pause() {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public void resume() {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
     public void cancel(boolean deleteData, boolean async) {
-        manager.remove(this);
-        TorrentUtil.removeDownload(downloadManager, deleteData, deleteData, async);
-    }
-
-    DownloadManager getDownloadManager() {
-        return downloadManager;
+        // TODO Auto-generated method stub
+        
     }
 
     @Override
     public List<? extends BittorrentDownloadItem> getBittorrentItems() {
-        return items;
-    }
-    
-    @Override
-    public String getDetailsUrl() {
+        // TODO Auto-generated method stub
         return null;
     }
+
+//    private final TransferManager manager;
+//    private DownloadManager downloadManager;
+//
+//    private List<BittorrentDownloadItem> items;
+//    private String hash;
+//    private boolean partialDownload;
+//    private Set<DiskManagerFileInfo> fileInfoSet;
+//    private long size;
+//    private String displayName;
+//
+//    public AzureusBittorrentDownload(TransferManager manager, DownloadManager downloadManager) {
+//        this.manager = manager;
+//        this.downloadManager = downloadManager;
+//
+//        try {
+//            hash = TorrentUtil.hashToString(downloadManager.getTorrent().getHash());
+//        } catch (Throwable e) {
+//            Log.e(TAG, String.format("Error getting hash %s", e.getMessage()));
+//            hash = "";
+//        }
+//
+//        fileInfoSet = TorrentUtil.getNoSkippedFileInfoSet(downloadManager);
+//        partialDownload = !TorrentUtil.getSkippedFiles(downloadManager).isEmpty();
+//
+//        if (partialDownload) {
+//            if (fileInfoSet.isEmpty()) {
+//                size = downloadManager.getSize();
+//            } else {
+//                size = 0;
+//                for (DiskManagerFileInfo fileInfo : fileInfoSet) {
+//                    size += fileInfo.getLength();
+//                }
+//            }
+//        } else {
+//            size = downloadManager.getSize();
+//        }
+//
+//        if (fileInfoSet.size() == 1) {
+//            displayName = FilenameUtils.getBaseName(fileInfoSet.toArray(new DiskManagerFileInfo[0])[0].getFile(false).getName());
+//        } else {
+//            displayName = downloadManager.getDisplayName();
+//        }
+//
+//        items = new ArrayList<BittorrentDownloadItem>(fileInfoSet.size());
+//        for (DiskManagerFileInfo fileInfo : fileInfoSet) {
+//            items.add(new AzureusBittorrentDownloadItem(fileInfo));
+//        }
+//    }
+//
+//    public String getDisplayName() {
+//        return displayName;
+//    }
+//
+//    public String getStatus() {
+//        return DisplayFormatters.formatDownloadStatus(downloadManager);
+//    }
+//
+//    public int getProgress() {
+//        if (isComplete()) {
+//            return 100;
+//        }
+//
+//        if (partialDownload) {
+//            long downloaded = 0;
+//            for (DiskManagerFileInfo fileInfo : fileInfoSet) {
+//                downloaded += fileInfo.getDownloaded();
+//            }
+//            return (int) ((downloaded * 100) / size);
+//        } else {
+//            return downloadManager.getStats().getDownloadCompleted(true) / 10;
+//        }
+//    }
+//
+//    public long getSize() {
+//        return size;
+//    }
+//
+//    public boolean isResumable() {
+//        return TorrentUtil.isStartable(downloadManager);
+//    }
+//
+//    public boolean isPausable() {
+//        return TorrentUtil.isStopable(downloadManager);
+//    }
+//
+//    public boolean isComplete() {
+//        return TorrentUtil.isComplete(downloadManager);
+//    }
+//
+//    public boolean isDownloading() {
+//        return downloadManager.getState() == DownloadManager.STATE_DOWNLOADING;
+//    }
+//
+//    public boolean isSeeding() {
+//        return downloadManager.getState() == DownloadManager.STATE_SEEDING;
+//    }
+//
+//    public List<? extends BittorrentDownloadItem> getItems() {
+//        if (items.size() == 1) {
+//            return Collections.emptyList();
+//        }
+//        return items;
+//    }
+//
+//    public void pause() {
+//        if (isPausable()) {
+//            TorrentUtil.stop(downloadManager);
+//        }
+//    }
+//
+//    public void resume() {
+//        if (isResumable()) {
+//            TorrentUtil.start(downloadManager);
+//        }
+//    }
+//
+//    public File getSavePath() {
+//        return downloadManager.getSaveLocation();
+//    }
+//
+//    public long getBytesReceived() {
+//        return downloadManager.getStats().getTotalGoodDataBytesReceived();
+//    }
+//
+//    public long getBytesSent() {
+//        return downloadManager.getStats().getTotalDataBytesSent();
+//    }
+//
+//    public long getDownloadSpeed() {
+//        return downloadManager.getStats().getDataReceiveRate();// / 1000;
+//    }
+//
+//    public long getUploadSpeed() {
+//        return downloadManager.getStats().getDataSendRate() / 1000;
+//    }
+//
+//    public long getETA() {
+//        return downloadManager.getStats().getETA();
+//    }
+//
+//    public Date getDateCreated() {
+//        return new Date(downloadManager.getCreationTime());
+//    }
+//
+//    public String getPeers() {
+//        long lTotalPeers = -1;
+//        long lConnectedPeers = 0;
+//        if (downloadManager != null) {
+//            lConnectedPeers = downloadManager.getNbPeers();
+//
+//            if (lTotalPeers == -1) {
+//                TRTrackerScraperResponse response = downloadManager.getTrackerScrapeResponse();
+//                if (response != null && response.isValid()) {
+//                    lTotalPeers = response.getPeers();
+//                }
+//            }
+//        }
+//
+//        long totalPeers = lTotalPeers;
+//        if (totalPeers <= 0) {
+//            DownloadManager dm = downloadManager;
+//            if (dm != null) {
+//                totalPeers = dm.getActivationCount();
+//            }
+//        }
+//
+//        //        long value = lConnectedPeers * 10000000;
+//        //        if (totalPeers > 0)
+//        //            value = value + totalPeers;
+//
+//        int state = downloadManager.getState();
+//        boolean started = state == DownloadManager.STATE_SEEDING || state == DownloadManager.STATE_DOWNLOADING;
+//        boolean hasScrape = lTotalPeers >= 0;
+//
+//        String tmp;
+//        if (started) {
+//            tmp = hasScrape ? (lConnectedPeers > lTotalPeers ? "%1" : "%1 " + "/" + " %2") : "%1";
+//        } else {
+//            tmp = hasScrape ? "%2" : "";
+//        }
+//
+//        tmp = tmp.replaceAll("%1", String.valueOf(lConnectedPeers));
+//        tmp = tmp.replaceAll("%2", String.valueOf(totalPeers));
+//
+//        return tmp;
+//    }
+//
+//    public String getSeeds() {
+//        long lTotalSeeds = -1;
+//        //long lTotalPeers = 0;
+//        long lConnectedSeeds = 0;
+//        DownloadManager dm = downloadManager;
+//        if (dm != null) {
+//            lConnectedSeeds = dm.getNbSeeds();
+//
+//            if (lTotalSeeds == -1) {
+//                TRTrackerScraperResponse response = dm.getTrackerScrapeResponse();
+//                if (response != null && response.isValid()) {
+//                    lTotalSeeds = response.getSeeds();
+//                    //lTotalPeers = response.getPeers();
+//                }
+//            }
+//        }
+//
+//        //        // Allows for 2097151 of each type (connected seeds, seeds, peers)
+//        //        long value = (lConnectedSeeds << 42);
+//        //        if (lTotalSeeds > 0)
+//        //            value += (lTotalSeeds << 21);
+//        //        if (lTotalPeers > 0)
+//        //            value += lTotalPeers;
+//
+//        //boolean bCompleteTorrent = dm == null ? false : dm.getAssumedComplete();
+//
+//        int state = dm.getState();
+//        boolean started = (state == DownloadManager.STATE_SEEDING || state == DownloadManager.STATE_DOWNLOADING);
+//        boolean hasScrape = lTotalSeeds >= 0;
+//        String tmp;
+//
+//        if (started) {
+//            tmp = hasScrape ? (lConnectedSeeds > lTotalSeeds ? "%1" : "%1 " + "/" + " %2") : "%1";
+//        } else {
+//            tmp = hasScrape ? "%2" : "";
+//        }
+//        tmp = tmp.replaceAll("%1", String.valueOf(lConnectedSeeds));
+//        String param2 = "?";
+//        if (lTotalSeeds != -1) {
+//            param2 = String.valueOf(lTotalSeeds);
+//        }
+//        tmp = tmp.replaceAll("%2", param2);
+//
+//        return tmp;
+//    }
+//
+//    public String getHash() {
+//        return hash;
+//    }
+//
+//    public String getSeedToPeerRatio() {
+//        float ratio = -1;
+//
+//        DownloadManager dm = downloadManager;
+//        if (dm != null) {
+//            TRTrackerScraperResponse response = dm.getTrackerScrapeResponse();
+//            int seeds;
+//            int peers;
+//
+//            if (response != null && response.isValid()) {
+//                seeds = Math.max(dm.getNbSeeds(), response.getSeeds());
+//
+//                int trackerPeerCount = response.getPeers();
+//                peers = dm.getNbPeers();
+//                if (peers == 0 || trackerPeerCount > peers) {
+//                    if (trackerPeerCount <= 0) {
+//                        peers = dm.getActivationCount();
+//                    } else {
+//                        peers = trackerPeerCount;
+//                    }
+//                }
+//            } else {
+//                seeds = dm.getNbSeeds();
+//                peers = dm.getNbPeers();
+//            }
+//
+//            if (peers < 0 || seeds < 0) {
+//                ratio = 0;
+//            } else {
+//                if (peers == 0) {
+//                    if (seeds == 0)
+//                        ratio = 0;
+//                    else
+//                        ratio = Float.POSITIVE_INFINITY;
+//                } else {
+//                    ratio = (float) seeds / peers;
+//                }
+//            }
+//        }
+//
+//        if (ratio == -1) {
+//            return "";
+//        } else if (ratio == 0) {
+//            return "??";
+//        } else {
+//            return DisplayFormatters.formatDecimal(ratio, 3);
+//        }
+//    }
+//
+//    public String getShareRatio() {
+//        DownloadManager dm = downloadManager;
+//
+//        int sr = (dm == null) ? 0 : dm.getStats().getShareRatio();
+//
+//        if (sr == Integer.MAX_VALUE) {
+//            sr = Integer.MAX_VALUE - 1;
+//        }
+//        if (sr == -1) {
+//            sr = Integer.MAX_VALUE;
+//        }
+//
+//        String shareRatio = "";
+//
+//        if (sr == Integer.MAX_VALUE) {
+//            shareRatio = Constants.INFINITY_STRING;
+//        } else {
+//            shareRatio = DisplayFormatters.formatDecimal((double) sr / 1000, 3);
+//        }
+//
+//        return shareRatio;
+//    }
+//
+//    @Override
+//    public void cancel() {
+//        cancel(false);
+//    }
+//
+//    public void cancel(boolean deleteData) {
+//        cancel(deleteData, true);
+//    }
+//
+//    public void cancel(boolean deleteData, boolean async) {
+//        manager.remove(this);
+//        TorrentUtil.removeDownload(downloadManager, deleteData, deleteData, async);
+//    }
+//
+//    DownloadManager getDownloadManager() {
+//        return downloadManager;
+//    }
+//
+//    @Override
+//    public List<? extends BittorrentDownloadItem> getBittorrentItems() {
+//        return items;
+//    }
+//    
+//    @Override
+//    public String getDetailsUrl() {
+//        return null;
+//    }
 }
