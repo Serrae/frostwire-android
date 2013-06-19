@@ -24,21 +24,19 @@ import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 
-//import org.gudy.azureus2.core3.config.COConfigurationManager;
-//import org.gudy.azureus2.core3.global.GlobalManager;
-//import org.gudy.azureus2.core3.util.DisplayFormatters;
-//import org.gudy.azureus2.core3.util.SimpleTimer;
-//import org.gudy.azureus2.core3.util.SystemProperties;
+import org.gudy.azureus2.core3.config.COConfigurationManager;
+import org.gudy.azureus2.core3.global.GlobalManager;
+import org.gudy.azureus2.core3.util.SystemProperties;
 
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.util.Log;
 
-//import com.aelitis.azureus.core.AzureusCore;
-//import com.aelitis.azureus.core.AzureusCoreException;
-//import com.aelitis.azureus.core.AzureusCoreFactory;
-//import com.aelitis.azureus.core.AzureusCoreLifecycleAdapter;
+import com.aelitis.azureus.core.AzureusCore;
+import com.aelitis.azureus.core.AzureusCoreException;
+import com.aelitis.azureus.core.AzureusCoreFactory;
+import com.aelitis.azureus.core.AzureusCoreLifecycleAdapter;
 import com.frostwire.android.R;
 import com.frostwire.android.core.ConfigurationManager;
 import com.frostwire.android.core.Constants;
@@ -66,7 +64,7 @@ public final class AzureusManager {
     private static final String AZUREUS_CONFIG_KEY_MAX_TOTAL_CONNECTIONS = "Max.Peer.Connections.Total";
     private static final String AZUREUS_CONFIG_KEY_MAX_TORRENT_CONNECTIONS = "Max.Peer.Connections.Per.Torrent";
 
-    //private AzureusCore azureusCore;
+    private AzureusCore azureusCore;
 
     private OnSharedPreferenceChangeListener preferenceListener;
 
@@ -107,8 +105,8 @@ public final class AzureusManager {
 
     public void pause() {
         try {
-//            SimpleTimer.pause();
-//            azureusCore.getGlobalManager().pauseDownloads();
+            //SimpleTimer.pause();
+            azureusCore.getGlobalManager().pauseDownloads();
         } catch (Throwable e) {
             Log.e(TAG, "Failed to pause Azureus core", e);
         }
@@ -116,87 +114,87 @@ public final class AzureusManager {
 
     public void resume() {
         try {
-//            COConfigurationManager.setParameter("UDP.Listen.Port.Enable", NetworkManager.instance().isDataWIFIUp());
-//            asyncSaveConfiguration();
-//
-//            SimpleTimer.resume();
-//            azureusCore.getGlobalManager().resumeDownloads();
+            COConfigurationManager.setParameter("UDP.Listen.Port.Enable", NetworkManager.instance().isDataWIFIUp());
+            asyncSaveConfiguration();
+
+            //SimpleTimer.resume();
+            azureusCore.getGlobalManager().resumeDownloads();
         } catch (Throwable e) {
             Log.e(TAG, "Failed to resume Azureus core", e);
         }
     }
 
     public static void revertToDefaultConfiguration() {
-        //COConfigurationManager.resetToDefaults();
+        COConfigurationManager.resetToDefaults();
         autoAdjustBittorrentSpeed();
     }
 
     public static void autoAdjustBittorrentSpeed() {
-//        if (COConfigurationManager.getBooleanParameter("Auto Adjust Transfer Defaults")) {
-//
-//            int up_limit_bytes_per_sec = 0;//getEstimatedUploadCapacityBytesPerSec().getBytesPerSec();
-//            //int down_limit_bytes_per_sec    = 0;//getEstimatedDownloadCapacityBytesPerSec().getBytesPerSec();
-//
-//            int up_kbs = up_limit_bytes_per_sec / 1024;
-//
-//            final int[][] settings = {
-//
-//            { 56, 2, 20, 40 }, // 56 k/bit
-//                    { 96, 3, 30, 60 }, { 128, 3, 40, 80 }, { 192, 4, 50, 100 }, // currently we don't go lower than this
-//                    { 256, 4, 60, 200 }, { 512, 5, 70, 300 }, { 1024, 6, 80, 400 }, // 1Mbit
-//                    { 2 * 1024, 8, 90, 500 }, { 5 * 1024, 10, 100, 600 }, { 10 * 1024, 20, 110, 750 }, // 10Mbit
-//                    { 20 * 1024, 30, 120, 900 }, { 50 * 1024, 40, 130, 1100 }, { 100 * 1024, 50, 140, 1300 }, { -1, 60, 150, 1500 }, };
-//
-//            int[] selected = settings[settings.length - 1];
-//
-//            // note, we start from 3 to avoid over-restricting things when we don't have
-//            // a reasonable speed estimate
-//
-//            for (int i = 3; i < settings.length; i++) {
-//
-//                int[] setting = settings[i];
-//
-//                int line_kilobit_sec = setting[0];
-//
-//                // convert to upload kbyte/sec assuming 80% achieved
-//
-//                int limit = (line_kilobit_sec / 8) * 4 / 5;
-//
-//                if (up_kbs <= limit) {
-//
-//                    selected = setting;
-//
-//                    break;
-//                }
-//            }
-//
-//            int upload_slots = selected[1];
-//            int connections_torrent = selected[2];
-//            int connections_global = selected[3];
-//
-//            if (upload_slots != COConfigurationManager.getIntParameter("Max Uploads")) {
-//                COConfigurationManager.setParameter("Max Uploads", upload_slots);
-//                COConfigurationManager.setParameter("Max Uploads Seeding", upload_slots);
-//            }
-//
-//            if (connections_torrent != COConfigurationManager.getIntParameter("Max.Peer.Connections.Per.Torrent")) {
-//                COConfigurationManager.setParameter("Max.Peer.Connections.Per.Torrent", connections_torrent);
-//                COConfigurationManager.setParameter("Max.Peer.Connections.Per.Torrent.When.Seeding", connections_torrent / 2);
-//            }
-//
-//            if (connections_global != COConfigurationManager.getIntParameter("Max.Peer.Connections.Total")) {
-//                COConfigurationManager.setParameter("Max.Peer.Connections.Total", connections_global);
-//            }
-//        }
+        if (COConfigurationManager.getBooleanParameter("Auto Adjust Transfer Defaults")) {
+
+            int up_limit_bytes_per_sec = 0;//getEstimatedUploadCapacityBytesPerSec().getBytesPerSec();
+            //int down_limit_bytes_per_sec    = 0;//getEstimatedDownloadCapacityBytesPerSec().getBytesPerSec();
+
+            int up_kbs = up_limit_bytes_per_sec / 1024;
+
+            final int[][] settings = {
+
+            { 56, 2, 20, 40 }, // 56 k/bit
+                    { 96, 3, 30, 60 }, { 128, 3, 40, 80 }, { 192, 4, 50, 100 }, // currently we don't go lower than this
+                    { 256, 4, 60, 200 }, { 512, 5, 70, 300 }, { 1024, 6, 80, 400 }, // 1Mbit
+                    { 2 * 1024, 8, 90, 500 }, { 5 * 1024, 10, 100, 600 }, { 10 * 1024, 20, 110, 750 }, // 10Mbit
+                    { 20 * 1024, 30, 120, 900 }, { 50 * 1024, 40, 130, 1100 }, { 100 * 1024, 50, 140, 1300 }, { -1, 60, 150, 1500 }, };
+
+            int[] selected = settings[settings.length - 1];
+
+            // note, we start from 3 to avoid over-restricting things when we don't have
+            // a reasonable speed estimate
+
+            for (int i = 3; i < settings.length; i++) {
+
+                int[] setting = settings[i];
+
+                int line_kilobit_sec = setting[0];
+
+                // convert to upload kbyte/sec assuming 80% achieved
+
+                int limit = (line_kilobit_sec / 8) * 4 / 5;
+
+                if (up_kbs <= limit) {
+
+                    selected = setting;
+
+                    break;
+                }
+            }
+
+            int upload_slots = selected[1];
+            int connections_torrent = selected[2];
+            int connections_global = selected[3];
+
+            if (upload_slots != COConfigurationManager.getIntParameter("Max Uploads")) {
+                COConfigurationManager.setParameter("Max Uploads", upload_slots);
+                COConfigurationManager.setParameter("Max Uploads Seeding", upload_slots);
+            }
+
+            if (connections_torrent != COConfigurationManager.getIntParameter("Max.Peer.Connections.Per.Torrent")) {
+                COConfigurationManager.setParameter("Max.Peer.Connections.Per.Torrent", connections_torrent);
+                COConfigurationManager.setParameter("Max.Peer.Connections.Per.Torrent.When.Seeding", connections_torrent / 2);
+            }
+
+            if (connections_global != COConfigurationManager.getIntParameter("Max.Peer.Connections.Total")) {
+                COConfigurationManager.setParameter("Max.Peer.Connections.Total", connections_global);
+            }
+        }
     }
 
-//    AzureusCore getAzureusCore() {
-//        return azureusCore;
-//    }
+    AzureusCore getAzureusCore() {
+        return azureusCore;
+    }
 
-//    GlobalManager getGlobalManager() {
-//        return getAzureusCore().getGlobalManager();
-//    }
+    GlobalManager getGlobalManager() {
+        return getAzureusCore().getGlobalManager();
+    }
 
     public static void initConfiguration() {
         File azureusPath = SystemUtils.getAzureusDirectory();
@@ -205,62 +203,62 @@ public final class AzureusManager {
         System.setProperty("azureus.install.path", azureusPath.getAbsolutePath());
         System.setProperty("azureus.loadplugins", "0"); // disable third party azureus plugins
 
-//        SystemProperties.APPLICATION_NAME = "azureus";
-//        SystemProperties.setUserPath(azureusPath.getAbsolutePath());
-//
-//        COConfigurationManager.setParameter("Auto Adjust Transfer Defaults", false);
-//        COConfigurationManager.setParameter("General_sDefaultTorrent_Directory", SystemUtils.getTorrentsDirectory().getAbsolutePath());
-//
-//        // network parameters, fine tunning for android
-//        COConfigurationManager.setParameter("network.tcp.write.select.time", 1000);
-//        COConfigurationManager.setParameter("network.tcp.write.select.min.time", 1000);
-//        COConfigurationManager.setParameter("network.tcp.read.select.time", 1000);
-//        COConfigurationManager.setParameter("network.tcp.read.select.min.time", 1000);
-//        COConfigurationManager.setParameter("network.control.write.idle.time", 1000);
-//        COConfigurationManager.setParameter("network.control.read.idle.time", 1000);
+        SystemProperties.APPLICATION_NAME = "azureus";
+        SystemProperties.setUserPath(azureusPath.getAbsolutePath());
+
+        COConfigurationManager.setParameter("Auto Adjust Transfer Defaults", false);
+        COConfigurationManager.setParameter("General_sDefaultTorrent_Directory", SystemUtils.getTorrentsDirectory().getAbsolutePath());
+
+        // network parameters, fine tunning for android
+        COConfigurationManager.setParameter("network.tcp.write.select.time", 1000);
+        COConfigurationManager.setParameter("network.tcp.write.select.min.time", 1000);
+        COConfigurationManager.setParameter("network.tcp.read.select.time", 1000);
+        COConfigurationManager.setParameter("network.tcp.read.select.min.time", 1000);
+        COConfigurationManager.setParameter("network.control.write.idle.time", 1000);
+        COConfigurationManager.setParameter("network.control.read.idle.time", 1000);
     }
 
     private void azureusInit() {
-//        try {
-//            azureusCore = AzureusCoreFactory.create();
-//        } catch (AzureusCoreException coreException) {
-//            //so we already had one ...
-//            if (azureusCore == null) {
-//                azureusCore = AzureusCoreFactory.getSingleton();
-//            }
-//        }
+        try {
+            azureusCore = AzureusCoreFactory.create();
+        } catch (AzureusCoreException coreException) {
+            //so we already had one ...
+            if (azureusCore == null) {
+                azureusCore = AzureusCoreFactory.getSingleton();
+            }
+        }
 
         registerPreferencesChangeListener();
     }
 
     private void azureusStart() {
         try {
-//            if (azureusCore.isStarted()) {
-//                Log.w(TAG, "Azureus core already started. skipping.");
-//                return;
-//            }
-//
-//            final CountDownLatch signal = new CountDownLatch(1);
-//            azureusCore.addLifecycleListener(new AzureusCoreLifecycleAdapter() {
-//                @Override
-//                public void started(AzureusCore core) {
-//                    if (signal != null) {
-//                        signal.countDown();
-//                    }
-//                }
-//            });
-//
-//            azureusCore.start();
-//
-//            azureusCore.getGlobalManager().resumeDownloads();
-//
-//            Log.d(TAG, "Azureus core starting...");
-//            try {
-//                signal.await();
-//                Log.d(TAG, "Azureus core started");
-//            } catch (InterruptedException e) {
-//                // ignore
-//            }
+            if (azureusCore.isStarted()) {
+                Log.w(TAG, "Azureus core already started. skipping.");
+                return;
+            }
+
+            final CountDownLatch signal = new CountDownLatch(1);
+            azureusCore.addLifecycleListener(new AzureusCoreLifecycleAdapter() {
+                @Override
+                public void started(AzureusCore core) {
+                    if (signal != null) {
+                        signal.countDown();
+                    }
+                }
+            });
+
+            azureusCore.start();
+
+            azureusCore.getGlobalManager().resumeDownloads();
+
+            Log.d(TAG, "Azureus core starting...");
+            try {
+                signal.await();
+                Log.d(TAG, "Azureus core started");
+            } catch (InterruptedException e) {
+                // ignore
+            }
         } catch (Throwable e) {
             Log.e(TAG, "Failed to start Azureus core started", e);
         }
@@ -288,7 +286,7 @@ public final class AzureusManager {
     }
 
     private void setAzureusParameter(String key) {
-        //COConfigurationManager.setParameter(key, ConfigurationManager.instance().getLong(key));
+        COConfigurationManager.setParameter(key, ConfigurationManager.instance().getLong(key));
         asyncSaveConfiguration();
     }
 
@@ -325,7 +323,7 @@ public final class AzureusManager {
             @Override
             public void run() {
                 try {
-                    //COConfigurationManager.save();
+                    COConfigurationManager.save();
                 } catch (Throwable t) {
                     //gubatron 03/26/2013
                     //for some reason we're getting a ConcurrentModification exception
