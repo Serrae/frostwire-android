@@ -18,15 +18,30 @@
 
 package com.frostwire.bittorrent;
 
+import org.gudy.azureus2.core3.config.COConfigurationManager;
+
+import com.aelitis.azureus.core.AzureusCore;
+import com.aelitis.azureus.core.AzureusCoreFactory;
+import com.aelitis.azureus.core.AzureusCoreLifecycleAdapter;
+
 /**
  * @author gubatron
  * @author aldenml
  *
  */
-public class VuzeEngine implements BTorrentEngine {
+final class VuzeEngine implements BTorrentEngine {
+
+    private final AzureusCore core;
+
+    public VuzeEngine() {
+        this.core = AzureusCoreFactory.create();
+        this.core.addLifecycleListener(new CoreLifecycleAdapter());
+
+        initConfiguration();
+    }
 
     public void start() {
-
+        core.start();
     }
 
     public void pause() {
@@ -35,5 +50,16 @@ public class VuzeEngine implements BTorrentEngine {
 
     public void resume() {
 
+    }
+
+    private void initConfiguration() {
+        COConfigurationManager.setParameter(VuzeKeys.RESUME_DOWNLOADS_ON_START, true);
+    }
+
+    private class CoreLifecycleAdapter extends AzureusCoreLifecycleAdapter {
+        @Override
+        public void started(AzureusCore core) {
+            // do something?
+        }
     }
 }
