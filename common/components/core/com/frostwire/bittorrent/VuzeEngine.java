@@ -18,11 +18,15 @@
 
 package com.frostwire.bittorrent;
 
+import java.io.File;
+
 import org.gudy.azureus2.core3.config.COConfigurationManager;
+import org.gudy.azureus2.core3.util.SystemProperties;
 
 import com.aelitis.azureus.core.AzureusCore;
 import com.aelitis.azureus.core.AzureusCoreFactory;
 import com.aelitis.azureus.core.AzureusCoreLifecycleAdapter;
+import com.frostwire.android.gui.util.SystemUtils;
 
 /**
  * @author gubatron
@@ -53,7 +57,18 @@ final class VuzeEngine implements BTorrentEngine {
     }
 
     private void initConfiguration() {
+        File azureusPath = SystemUtils.getAzureusDirectory();
+
+        System.setProperty("azureus.config.path", azureusPath.getAbsolutePath());
+        System.setProperty("azureus.install.path", azureusPath.getAbsolutePath());
+        System.setProperty("azureus.loadplugins", "0"); // disable third party azureus plugins
+
+        SystemProperties.APPLICATION_NAME = "azureus";
+        SystemProperties.setUserPath(azureusPath.getAbsolutePath());
+
+        COConfigurationManager.setParameter(VuzeKeys.AUTO_ADJUST_TRANSFER_DEFAULTS, false);
         COConfigurationManager.setParameter(VuzeKeys.RESUME_DOWNLOADS_ON_START, true);
+        COConfigurationManager.setParameter(VuzeKeys.GENERAL_DEFAULT_TORRENT_DIRECTORY, SystemUtils.getTorrentsDirectory().getAbsolutePath());
     }
 
     private class CoreLifecycleAdapter extends AzureusCoreLifecycleAdapter {

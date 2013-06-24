@@ -28,5 +28,7 @@ final class VuzeKeys {
     private VuzeKeys() {
     }
 
+    public static final String AUTO_ADJUST_TRANSFER_DEFAULTS = "Auto Adjust Transfer Defaults";
     public static final String RESUME_DOWNLOADS_ON_START = "Resume Downloads On Start";
+    public static final String GENERAL_DEFAULT_TORRENT_DIRECTORY = "General_sDefaultTorrent_Directory";
 }
