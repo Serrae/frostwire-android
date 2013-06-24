@@ -30,23 +30,24 @@ import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 
-import javax.naming.Context;
-import javax.naming.NamingEnumeration;
-import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
-import javax.naming.directory.DirContext;
-import javax.naming.directory.InitialDirContext;
+//import javax.naming.Context;
+//import javax.naming.NamingEnumeration;
+//import javax.naming.NamingException;
+//import javax.naming.directory.Attribute;
+//import javax.naming.directory.Attributes;
+//import javax.naming.directory.DirContext;
+//import javax.naming.directory.InitialDirContext;
 
 import org.gudy.azureus2.core3.util.Debug;
 
 import com.aelitis.azureus.core.util.DNSUtils;
 import com.aelitis.azureus.core.util.DNSUtils.DNSUtilsIntf;
 
-public class 
+public abstract class 
 DNSUtilsImpl 
 	implements DNSUtilsIntf
 {
+    /*
 	private static String
 	getFactory()
 	{
@@ -382,7 +383,7 @@ DNSUtilsImpl
 				return( Debug.getNestedExceptionMessage(e));
 			}
 		}
-	}
+	}*/
 	
 	public static void
 	main(
@@ -399,11 +400,11 @@ DNSUtilsImpl
 			}
 			*/
 			
-			DNSUtilsImpl impl = new DNSUtilsImpl();
-			
-			DNSUtils.DNSDirContext ctx =impl.getDirContextForServer( "8.8.4.4" );
-
-			System.out.println( impl.getAllByName( ctx, "www.google.com" ));
+//			DNSUtilsImpl impl = new DNSUtilsImpl();
+//			
+//			DNSUtils.DNSDirContext ctx =impl.getDirContextForServer( "8.8.4.4" );
+//
+//			System.out.println( impl.getAllByName( ctx, "www.google.com" ));
 			
 		}catch( Throwable e ){
 			
