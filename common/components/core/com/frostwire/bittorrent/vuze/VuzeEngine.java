@@ -16,7 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.frostwire.bittorrent;
+package com.frostwire.bittorrent.vuze;
 
 import java.io.File;
 import java.util.Collections;
@@ -31,6 +31,8 @@ import com.aelitis.azureus.core.AzureusCore;
 import com.aelitis.azureus.core.AzureusCoreFactory;
 import com.aelitis.azureus.core.AzureusCoreLifecycleAdapter;
 import com.frostwire.android.gui.util.SystemUtils;
+import com.frostwire.bittorrent.BTorrentDownloadManager;
+import com.frostwire.bittorrent.BTorrentEngine;
 import com.frostwire.concurrent.AsyncExecutor;
 import com.frostwire.concurrent.AsyncExecutors;
 import com.frostwire.concurrent.AsyncFuture;
@@ -41,7 +43,7 @@ import com.frostwire.concurrent.Futures;
  * @author aldenml
  *
  */
-final class VuzeEngine implements BTorrentEngine {
+public final class VuzeEngine implements BTorrentEngine {
 
     private static final AsyncExecutor executor = AsyncExecutors.newSingleThreadExecutor();
 

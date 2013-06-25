@@ -21,6 +21,7 @@ package com.frostwire.bittorrent;
 import java.util.List;
 
 import com.aelitis.azureus.core.AzureusCore;
+import com.frostwire.bittorrent.vuze.VuzeEngine;
 import com.frostwire.concurrent.AsyncFuture;
 
 /**
