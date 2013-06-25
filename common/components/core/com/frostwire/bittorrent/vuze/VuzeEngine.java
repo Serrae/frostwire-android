@@ -19,12 +19,14 @@
 package com.frostwire.bittorrent.vuze;
 
 import java.io.File;
-import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CountDownLatch;
 
 import org.gudy.azureus2.core3.config.COConfigurationManager;
+import org.gudy.azureus2.core3.download.DownloadManager;
+import org.gudy.azureus2.core3.global.GlobalManager;
 import org.gudy.azureus2.core3.util.SystemProperties;
 
 import com.aelitis.azureus.core.AzureusCore;
@@ -78,14 +80,14 @@ public final class VuzeEngine implements BTorrentEngine {
     @Override
     public AsyncFuture<List<BTorrentDownloadManager>> getDownloadManagers() {
         if (core.isStarted()) {
-            return Futures.successful(null); // fix this
+            return Futures.successful(getDownloadManagersSupport());
         }
 
         return executor.submit(new Callable<List<BTorrentDownloadManager>>() {
             @Override
             public List<BTorrentDownloadManager> call() throws Exception {
                 coreStarted.await();
-                return Collections.emptyList(); // fix this
+                return getDownloadManagersSupport();
             }
         });
     }
@@ -103,6 +105,19 @@ public final class VuzeEngine implements BTorrentEngine {
         COConfigurationManager.setParameter(VuzeKeys.AUTO_ADJUST_TRANSFER_DEFAULTS, false);
         COConfigurationManager.setParameter(VuzeKeys.RESUME_DOWNLOADS_ON_START, true);
         COConfigurationManager.setParameter(VuzeKeys.GENERAL_DEFAULT_TORRENT_DIRECTORY, SystemUtils.getTorrentsDirectory().getAbsolutePath());
+    }
+
+    private List<BTorrentDownloadManager> getDownloadManagersSupport() {
+        List<BTorrentDownloadManager> result = new LinkedList<BTorrentDownloadManager>();
+
+        GlobalManager gm = core.getGlobalManager();
+        List<DownloadManager> dms = gm.getDownloadManagers();
+
+        for (DownloadManager dm : dms) {
+            result.add(new VuzeDownloadManager(dm));
+        }
+
+        return result;
     }
 
     private class CoreLifecycleAdapter extends AzureusCoreLifecycleAdapter {

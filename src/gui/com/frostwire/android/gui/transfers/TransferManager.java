@@ -24,7 +24,6 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.gudy.azureus2.core3.download.DownloadManager;
-import org.gudy.azureus2.core3.global.GlobalManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,9 +34,9 @@ import com.frostwire.android.core.DesktopUploadRequest;
 import com.frostwire.android.core.FileDescriptor;
 import com.frostwire.android.gui.NetworkManager;
 import com.frostwire.android.gui.Peer;
-import com.frostwire.android.util.ByteUtils;
 import com.frostwire.bittorrent.BTorrentDownloadManager;
 import com.frostwire.bittorrent.BTorrentManager;
+import com.frostwire.bittorrent.vuze.VuzeDownloadManager;
 import com.frostwire.concurrent.AsyncFuture;
 import com.frostwire.concurrent.AsyncFutureListener;
 import com.frostwire.search.HttpSearchResult;
@@ -270,44 +269,36 @@ public final class TransferManager {
     public void loadTorrents() {
         bittorrentDownloads.clear();
 
-        AsyncFuture<List<BTorrentDownloadManager>> f = BTorrentManager.getInstance().getDownloadManagers();
-        f.setListener(new AsyncFutureListener<List<BTorrentDownloadManager>>() {
+        BTorrentManager.getInstance().getDownloadManagers().setListener(new AsyncFutureListener<List<BTorrentDownloadManager>>() {
 
             @Override
             public void onComplete(AsyncFuture<List<BTorrentDownloadManager>> future) {
-                GlobalManager globalManager = AzureusManager.instance().getAzureusCore().getGlobalManager();
-                List<?> downloadManagers = globalManager.getDownloadManagers();
+                try {
+                    List<BTorrentDownloadManager> dms = future.get();
 
-                List<DownloadManager> downloads = new ArrayList<DownloadManager>();
-                for (Object obj : downloadManagers) {
-                    if (obj instanceof DownloadManager) {
-                        try {
-                            if (((DownloadManager) obj).getTorrent() != null && ((DownloadManager) obj).getTorrent().getHash() != null) {
-                                LOG.debug("Loading torrent with hash: " + ByteUtils.encodeHex(((DownloadManager) obj).getTorrent().getHash()));
-                                downloads.add((DownloadManager) obj);
-                            }
-                        } catch (Throwable e) {
-                            // ignore
-                            LOG.debug("error loading torrent (not the end of the world, keep going)");
+                    List<DownloadManager> downloads = new ArrayList<DownloadManager>();
+                    for (BTorrentDownloadManager obj : dms) {
+                        downloads.add(((VuzeDownloadManager) obj).getDownloadManager());
+                    }
+
+                    boolean stop = false;
+                    if (!ConfigurationManager.instance().getBoolean(Constants.PREF_KEY_TORRENT_SEED_FINISHED_TORRENTS)) {
+                        stop = true;
+                    } else {
+                        if (!NetworkManager.instance().isDataWIFIUp() && ConfigurationManager.instance().getBoolean(Constants.PREF_KEY_TORRENT_SEED_FINISHED_TORRENTS_WIFI_ONLY)) {
+                            stop = true;
                         }
                     }
-                }
 
-                boolean stop = false;
-                if (!ConfigurationManager.instance().getBoolean(Constants.PREF_KEY_TORRENT_SEED_FINISHED_TORRENTS)) {
-                    stop = true;
-                } else {
-                    if (!NetworkManager.instance().isDataWIFIUp() && ConfigurationManager.instance().getBoolean(Constants.PREF_KEY_TORRENT_SEED_FINISHED_TORRENTS_WIFI_ONLY)) {
-                        stop = true;
+                    for (DownloadManager dm : downloads) {
+                        if (stop && TorrentUtil.isComplete(dm)) {
+                            TorrentUtil.stop(dm);
+                        }
+
+                        bittorrentDownloads.add(BittorrentDownloadCreator.create(TransferManager.this, dm));
                     }
-                }
-
-                for (DownloadManager dm : downloads) {
-                    if (stop && TorrentUtil.isComplete(dm)) {
-                        TorrentUtil.stop(dm);
-                    }
-
-                    bittorrentDownloads.add(BittorrentDownloadCreator.create(TransferManager.this, dm));
+                } catch (Throwable e) {
+                    LOG.debug("error loading torrent", e);
                 }
             }
         });
