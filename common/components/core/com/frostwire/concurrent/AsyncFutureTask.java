@@ -30,22 +30,29 @@ public class AsyncFutureTask<V> extends FutureTask<V> implements AsyncFuture<V> 
 
     private AsyncFutureListener<V> listener;
 
+    private final Object lock = new Object();
+
     public AsyncFutureTask(Callable<V> callable) {
         super(callable);
     }
 
     @Override
     public void setListener(AsyncFutureListener<V> listener) {
-        this.listener = listener;
-        if (isDone()) {
-            done();
+        synchronized (lock) {
+            if (isDone()) {
+                listener.onComplete(this);
+            } else {
+                this.listener = listener;
+            }
         }
     }
 
     @Override
     protected void done() {
-        if (listener != null) {
-            listener.onComplete(this);
+        synchronized (lock) {
+            if (listener != null) {
+                listener.onComplete(this);
+            }
         }
     }
 }

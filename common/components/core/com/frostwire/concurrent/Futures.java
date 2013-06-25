@@ -75,9 +75,7 @@ public final class Futures {
 
         @Override
         public void setListener(AsyncFutureListener<V> listener) {
-            if (listener != null) {
-                listener.onComplete(this);
-            }
+            listener.onComplete(this);
         }
     }
 
@@ -116,9 +114,7 @@ public final class Futures {
 
         @Override
         public void setListener(AsyncFutureListener<V> listener) {
-            if (listener != null) {
-                listener.onComplete(this);
-            }
+            listener.onComplete(this);
         }
     }
 }
