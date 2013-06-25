@@ -23,11 +23,6 @@ package com.frostwire.bittorrent;
  * @author aldenml
  *
  */
-public interface BTorrentEngine {
+public interface BTorrentDownloadManager {
 
-    public void start();
-
-    public void pause();
-
-    public void resume();
 }

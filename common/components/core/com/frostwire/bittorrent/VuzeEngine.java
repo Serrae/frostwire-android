@@ -44,6 +44,10 @@ final class VuzeEngine implements BTorrentEngine {
         initConfiguration();
     }
 
+    public AzureusCore getCore() {
+        return core;
+    }
+
     public void start() {
         core.start();
     }

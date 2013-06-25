@@ -18,16 +18,40 @@
 
 package com.frostwire.bittorrent;
 
+import java.util.List;
+import java.util.concurrent.Future;
+
+import com.aelitis.azureus.core.AzureusCore;
+
 /**
+ * Class to initialize the azureus core.
+ * 
  * @author gubatron
  * @author aldenml
  *
  */
-public interface BTorrentEngine {
+public final class BTorrentManager {
 
-    public void start();
+    private final BTorrentEngine engine;
 
-    public void pause();
+    private BTorrentManager() {
+        this.engine = new VuzeEngine();
+    }
 
-    public void resume();
+    private static class Loader {
+        static BTorrentManager INSTANCE = new BTorrentManager();
+    }
+
+    public static BTorrentManager getInstance() {
+        return Loader.INSTANCE;
+    }
+
+    public Future<List<BTorrentDownloadManager>> getDownloadManagers() {
+        return null;
+    }
+
+    // remove
+    public AzureusCore getAzureusCore() {
+        return ((VuzeEngine) engine).getCore();
+    }
 }

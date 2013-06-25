@@ -22,6 +22,7 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.Future;
 
 import org.gudy.azureus2.core3.download.DownloadManager;
 import org.gudy.azureus2.core3.global.GlobalManager;
@@ -36,6 +37,8 @@ import com.frostwire.android.core.FileDescriptor;
 import com.frostwire.android.gui.NetworkManager;
 import com.frostwire.android.gui.Peer;
 import com.frostwire.android.util.ByteUtils;
+import com.frostwire.bittorrent.BTorrentDownloadManager;
+import com.frostwire.bittorrent.BTorrentManager;
 import com.frostwire.search.HttpSearchResult;
 import com.frostwire.search.SearchResult;
 import com.frostwire.search.soundcloud.SoundcloudSearchResult;
@@ -267,9 +270,8 @@ public final class TransferManager {
     public void loadTorrents() {
         bittorrentDownloads.clear();
 
-        if (!AzureusManager.isCreated()) {
-            return;
-        }
+        Future<List<BTorrentDownloadManager>> f = BTorrentManager.getInstance().getDownloadManagers();
+        
 
         GlobalManager globalManager = AzureusManager.instance().getAzureusCore().getGlobalManager();
         List<?> downloadManagers = globalManager.getDownloadManagers();

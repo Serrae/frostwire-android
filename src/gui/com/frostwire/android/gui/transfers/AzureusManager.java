@@ -45,6 +45,7 @@ import com.frostwire.android.gui.Librarian;
 import com.frostwire.android.gui.NetworkManager;
 import com.frostwire.android.gui.util.SystemUtils;
 import com.frostwire.android.util.concurrent.ExecutorsHelper;
+import com.frostwire.bittorrent.BTorrentManager;
 
 /**
  * Class to initialize the azureus core.
@@ -64,7 +65,7 @@ public final class AzureusManager {
     private static final String AZUREUS_CONFIG_KEY_MAX_TOTAL_CONNECTIONS = "Max.Peer.Connections.Total";
     private static final String AZUREUS_CONFIG_KEY_MAX_TORRENT_CONNECTIONS = "Max.Peer.Connections.Per.Torrent";
 
-    private AzureusCore azureusCore;
+    //private AzureusCore azureusCore;
 
     private OnSharedPreferenceChangeListener preferenceListener;
 
@@ -106,7 +107,7 @@ public final class AzureusManager {
     public void pause() {
         try {
             //SimpleTimer.pause();
-            azureusCore.getGlobalManager().pauseDownloads();
+            //azureusCore.getGlobalManager().pauseDownloads();
         } catch (Throwable e) {
             Log.e(TAG, "Failed to pause Azureus core", e);
         }
@@ -114,11 +115,11 @@ public final class AzureusManager {
 
     public void resume() {
         try {
-            COConfigurationManager.setParameter("UDP.Listen.Port.Enable", NetworkManager.instance().isDataWIFIUp());
-            asyncSaveConfiguration();
+            //COConfigurationManager.setParameter("UDP.Listen.Port.Enable", NetworkManager.instance().isDataWIFIUp());
+            //asyncSaveConfiguration();
 
             //SimpleTimer.resume();
-            azureusCore.getGlobalManager().resumeDownloads();
+            //azureusCore.getGlobalManager().resumeDownloads();
         } catch (Throwable e) {
             Log.e(TAG, "Failed to resume Azureus core", e);
         }
@@ -189,7 +190,7 @@ public final class AzureusManager {
     }
 
     AzureusCore getAzureusCore() {
-        return azureusCore;
+        return BTorrentManager.getInstance().getAzureusCore();
     }
 
     GlobalManager getGlobalManager() {
@@ -220,12 +221,12 @@ public final class AzureusManager {
 
     private void azureusInit() {
         try {
-            azureusCore = AzureusCoreFactory.create();
+            //azureusCore = AzureusCoreFactory.create();
         } catch (AzureusCoreException coreException) {
             //so we already had one ...
-            if (azureusCore == null) {
-                azureusCore = AzureusCoreFactory.getSingleton();
-            }
+//            if (azureusCore == null) {
+//                azureusCore = AzureusCoreFactory.getSingleton();
+//            }
         }
 
         registerPreferencesChangeListener();
@@ -233,32 +234,32 @@ public final class AzureusManager {
 
     private void azureusStart() {
         try {
-            if (azureusCore.isStarted()) {
-                Log.w(TAG, "Azureus core already started. skipping.");
-                return;
-            }
-
-            final CountDownLatch signal = new CountDownLatch(1);
-            azureusCore.addLifecycleListener(new AzureusCoreLifecycleAdapter() {
-                @Override
-                public void started(AzureusCore core) {
-                    if (signal != null) {
-                        signal.countDown();
-                    }
-                }
-            });
-
-            azureusCore.start();
-
-            azureusCore.getGlobalManager().resumeDownloads();
-
-            Log.d(TAG, "Azureus core starting...");
-            try {
-                signal.await();
-                Log.d(TAG, "Azureus core started");
-            } catch (InterruptedException e) {
-                // ignore
-            }
+//            if (azureusCore.isStarted()) {
+//                Log.w(TAG, "Azureus core already started. skipping.");
+//                return;
+//            }
+//
+//            final CountDownLatch signal = new CountDownLatch(1);
+//            azureusCore.addLifecycleListener(new AzureusCoreLifecycleAdapter() {
+//                @Override
+//                public void started(AzureusCore core) {
+//                    if (signal != null) {
+//                        signal.countDown();
+//                    }
+//                }
+//            });
+//
+//            azureusCore.start();
+//
+//            azureusCore.getGlobalManager().resumeDownloads();
+//
+//            Log.d(TAG, "Azureus core starting...");
+//            try {
+//                signal.await();
+//                Log.d(TAG, "Azureus core started");
+//            } catch (InterruptedException e) {
+//                // ignore
+//            }
         } catch (Throwable e) {
             Log.e(TAG, "Failed to start Azureus core started", e);
         }
