@@ -25,4 +25,5 @@ package com.frostwire.bittorrent;
  */
 public interface BTorrentDownloadManager {
 
+    public byte[] getHash();
 }

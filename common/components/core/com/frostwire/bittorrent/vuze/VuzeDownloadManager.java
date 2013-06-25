@@ -19,6 +19,7 @@
 package com.frostwire.bittorrent.vuze;
 
 import org.gudy.azureus2.core3.download.DownloadManager;
+import org.gudy.azureus2.core3.torrent.TOTorrentException;
 
 import com.frostwire.bittorrent.BTorrentDownloadManager;
 
@@ -37,5 +38,14 @@ public class VuzeDownloadManager implements BTorrentDownloadManager {
 
     public DownloadManager getDownloadManager() {
         return dm;
+    }
+
+    @Override
+    public byte[] getHash() {
+        try {
+            return dm.getTorrent().getHash();
+        } catch (TOTorrentException e) {
+            throw new RuntimeException(e); // can't recover from this
+        }
     }
 }
