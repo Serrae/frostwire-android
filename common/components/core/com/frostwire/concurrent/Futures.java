@@ -36,6 +36,10 @@ public final class Futures {
         return new Successful<V>(value);
     }
 
+    public static <V> AsyncFuture<V> failed(Throwable e) {
+        return new Failed<V>(e);
+    }
+
     private static final class Successful<V> implements AsyncFuture<V> {
 
         private final V value;
@@ -67,6 +71,47 @@ public final class Futures {
         @Override
         public V get(long timeout, TimeUnit unit) throws InterruptedException, ExecutionException, TimeoutException {
             return value;
+        }
+
+        @Override
+        public void setListener(AsyncFutureListener<V> listener) {
+            if (listener != null) {
+                listener.onComplete(this);
+            }
+        }
+    }
+
+    private static final class Failed<V> implements AsyncFuture<V> {
+
+        private final ExecutionException e;
+
+        public Failed(Throwable e) {
+            this.e = new ExecutionException(e);
+        }
+
+        @Override
+        public boolean cancel(boolean mayInterruptIfRunning) {
+            return false;
+        }
+
+        @Override
+        public boolean isCancelled() {
+            return false;
+        }
+
+        @Override
+        public boolean isDone() {
+            return true;
+        }
+
+        @Override
+        public V get() throws InterruptedException, ExecutionException {
+            throw e;
+        }
+
+        @Override
+        public V get(long timeout, TimeUnit unit) throws InterruptedException, ExecutionException, TimeoutException {
+            throw e;
         }
 
         @Override

@@ -22,7 +22,6 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.concurrent.Future;
 
 import org.gudy.azureus2.core3.download.DownloadManager;
 import org.gudy.azureus2.core3.global.GlobalManager;
@@ -39,6 +38,8 @@ import com.frostwire.android.gui.Peer;
 import com.frostwire.android.util.ByteUtils;
 import com.frostwire.bittorrent.BTorrentDownloadManager;
 import com.frostwire.bittorrent.BTorrentManager;
+import com.frostwire.concurrent.AsyncFuture;
+import com.frostwire.concurrent.AsyncFutureListener;
 import com.frostwire.search.HttpSearchResult;
 import com.frostwire.search.SearchResult;
 import com.frostwire.search.soundcloud.SoundcloudSearchResult;
@@ -96,7 +97,6 @@ public final class TransferManager {
 
         return transfers;
     }
-
 
     private boolean alreadyDownloading(String detailsUrl) {
         synchronized (alreadyDownloadingMonitor) {
@@ -270,43 +270,47 @@ public final class TransferManager {
     public void loadTorrents() {
         bittorrentDownloads.clear();
 
-        Future<List<BTorrentDownloadManager>> f = BTorrentManager.getInstance().getDownloadManagers();
-        
+        AsyncFuture<List<BTorrentDownloadManager>> f = BTorrentManager.getInstance().getDownloadManagers();
+        f.setListener(new AsyncFutureListener<List<BTorrentDownloadManager>>() {
 
-        GlobalManager globalManager = AzureusManager.instance().getAzureusCore().getGlobalManager();
-        List<?> downloadManagers = globalManager.getDownloadManagers();
+            @Override
+            public void onComplete(AsyncFuture<List<BTorrentDownloadManager>> future) {
+                GlobalManager globalManager = AzureusManager.instance().getAzureusCore().getGlobalManager();
+                List<?> downloadManagers = globalManager.getDownloadManagers();
 
-        List<DownloadManager> downloads = new ArrayList<DownloadManager>();
-        for (Object obj : downloadManagers) {
-            if (obj instanceof DownloadManager) {
-                try {
-                    if (((DownloadManager) obj).getTorrent() != null && ((DownloadManager) obj).getTorrent().getHash() != null) {
-                        LOG.debug("Loading torrent with hash: " + ByteUtils.encodeHex(((DownloadManager) obj).getTorrent().getHash()));
-                        downloads.add((DownloadManager) obj);
+                List<DownloadManager> downloads = new ArrayList<DownloadManager>();
+                for (Object obj : downloadManagers) {
+                    if (obj instanceof DownloadManager) {
+                        try {
+                            if (((DownloadManager) obj).getTorrent() != null && ((DownloadManager) obj).getTorrent().getHash() != null) {
+                                LOG.debug("Loading torrent with hash: " + ByteUtils.encodeHex(((DownloadManager) obj).getTorrent().getHash()));
+                                downloads.add((DownloadManager) obj);
+                            }
+                        } catch (Throwable e) {
+                            // ignore
+                            LOG.debug("error loading torrent (not the end of the world, keep going)");
+                        }
                     }
-                } catch (Throwable e) {
-                    // ignore
-                    LOG.debug("error loading torrent (not the end of the world, keep going)");
+                }
+
+                boolean stop = false;
+                if (!ConfigurationManager.instance().getBoolean(Constants.PREF_KEY_TORRENT_SEED_FINISHED_TORRENTS)) {
+                    stop = true;
+                } else {
+                    if (!NetworkManager.instance().isDataWIFIUp() && ConfigurationManager.instance().getBoolean(Constants.PREF_KEY_TORRENT_SEED_FINISHED_TORRENTS_WIFI_ONLY)) {
+                        stop = true;
+                    }
+                }
+
+                for (DownloadManager dm : downloads) {
+                    if (stop && TorrentUtil.isComplete(dm)) {
+                        TorrentUtil.stop(dm);
+                    }
+
+                    bittorrentDownloads.add(BittorrentDownloadCreator.create(TransferManager.this, dm));
                 }
             }
-        }
-
-        boolean stop = false;
-        if (!ConfigurationManager.instance().getBoolean(Constants.PREF_KEY_TORRENT_SEED_FINISHED_TORRENTS)) {
-            stop = true;
-        } else {
-            if (!NetworkManager.instance().isDataWIFIUp() && ConfigurationManager.instance().getBoolean(Constants.PREF_KEY_TORRENT_SEED_FINISHED_TORRENTS_WIFI_ONLY)) {
-                stop = true;
-            }
-        }
-
-        for (DownloadManager dm : downloads) {
-            if (stop && TorrentUtil.isComplete(dm)) {
-                TorrentUtil.stop(dm);
-            }
-
-            bittorrentDownloads.add(BittorrentDownloadCreator.create(this, dm));
-        }
+        });
     }
 
     List<BittorrentDownload> getBittorrentDownloads() {

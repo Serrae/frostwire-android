@@ -18,6 +18,10 @@
 
 package com.frostwire.bittorrent;
 
+import java.util.List;
+
+import com.frostwire.concurrent.AsyncFuture;
+
 /**
  * @author gubatron
  * @author aldenml
@@ -30,4 +34,6 @@ public interface BTorrentEngine {
     public void pause();
 
     public void resume();
+
+    public AsyncFuture<List<BTorrentDownloadManager>> getDownloadManagers();
 }

@@ -19,6 +19,10 @@
 package com.frostwire.bittorrent;
 
 import java.io.File;
+import java.util.Collections;
+import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.concurrent.CountDownLatch;
 
 import org.gudy.azureus2.core3.config.COConfigurationManager;
 import org.gudy.azureus2.core3.util.SystemProperties;
@@ -27,6 +31,10 @@ import com.aelitis.azureus.core.AzureusCore;
 import com.aelitis.azureus.core.AzureusCoreFactory;
 import com.aelitis.azureus.core.AzureusCoreLifecycleAdapter;
 import com.frostwire.android.gui.util.SystemUtils;
+import com.frostwire.concurrent.AsyncExecutor;
+import com.frostwire.concurrent.AsyncExecutors;
+import com.frostwire.concurrent.AsyncFuture;
+import com.frostwire.concurrent.Futures;
 
 /**
  * @author gubatron
@@ -35,13 +43,18 @@ import com.frostwire.android.gui.util.SystemUtils;
  */
 final class VuzeEngine implements BTorrentEngine {
 
+    private static final AsyncExecutor executor = AsyncExecutors.newSingleThreadExecutor();
+
     private final AzureusCore core;
+    private final CountDownLatch coreStarted;
 
     public VuzeEngine() {
+        initConfiguration();
+
         this.core = AzureusCoreFactory.create();
         this.core.addLifecycleListener(new CoreLifecycleAdapter());
 
-        initConfiguration();
+        this.coreStarted = new CountDownLatch(1);
     }
 
     public AzureusCore getCore() {
@@ -58,6 +71,21 @@ final class VuzeEngine implements BTorrentEngine {
 
     public void resume() {
 
+    }
+
+    @Override
+    public AsyncFuture<List<BTorrentDownloadManager>> getDownloadManagers() {
+        if (core.isStarted()) {
+            return Futures.successful(null); // fix this
+        }
+
+        return executor.submit(new Callable<List<BTorrentDownloadManager>>() {
+            @Override
+            public List<BTorrentDownloadManager> call() throws Exception {
+                coreStarted.await();
+                return Collections.emptyList(); // fix this
+            }
+        });
     }
 
     private void initConfiguration() {
@@ -78,7 +106,7 @@ final class VuzeEngine implements BTorrentEngine {
     private class CoreLifecycleAdapter extends AzureusCoreLifecycleAdapter {
         @Override
         public void started(AzureusCore core) {
-            // do something?
+            coreStarted.countDown();
         }
     }
 }

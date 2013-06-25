@@ -19,9 +19,9 @@
 package com.frostwire.bittorrent;
 
 import java.util.List;
-import java.util.concurrent.Future;
 
 import com.aelitis.azureus.core.AzureusCore;
+import com.frostwire.concurrent.AsyncFuture;
 
 /**
  * Class to initialize the azureus core.
@@ -46,8 +46,12 @@ public final class BTorrentManager {
         return Loader.INSTANCE;
     }
 
-    public Future<List<BTorrentDownloadManager>> getDownloadManagers() {
-        return null;
+    public void start() {
+        engine.start();
+    }
+
+    public AsyncFuture<List<BTorrentDownloadManager>> getDownloadManagers() {
+        return engine.getDownloadManagers();
     }
 
     // remove
