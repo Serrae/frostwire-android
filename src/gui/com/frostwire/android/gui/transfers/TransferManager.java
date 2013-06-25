@@ -77,6 +77,8 @@ public final class TransferManager {
         this.bittorrentDownloads = new LinkedList<BittorrentDownload>();
 
         this.downloadsToReview = 0;
+        
+        loadTorrents();
     }
 
     public List<Transfer> getTransfers() {
