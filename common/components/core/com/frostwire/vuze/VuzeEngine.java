@@ -43,7 +43,7 @@ import com.frostwire.concurrent.Futures;
  * @author aldenml
  *
  */
-public final class VuzeEngine {
+final class VuzeEngine {
 
     private static final AsyncExecutor executor = AsyncExecutors.newSingleThreadExecutor();
 
@@ -102,7 +102,7 @@ public final class VuzeEngine {
         COConfigurationManager.setParameter(VuzeKeys.AUTO_ADJUST_TRANSFER_DEFAULTS, false);
         COConfigurationManager.setParameter(VuzeKeys.RESUME_DOWNLOADS_ON_START, true);
         COConfigurationManager.setParameter(VuzeKeys.GENERAL_DEFAULT_TORRENT_DIRECTORY, SystemUtils.getTorrentsDirectory().getAbsolutePath());
-        
+
         // network parameters, fine tunning for android
         /*
         COConfigurationManager.setParameter("network.tcp.write.select.time", 1000);
