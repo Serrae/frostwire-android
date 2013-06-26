@@ -102,6 +102,16 @@ public final class VuzeEngine {
         COConfigurationManager.setParameter(VuzeKeys.AUTO_ADJUST_TRANSFER_DEFAULTS, false);
         COConfigurationManager.setParameter(VuzeKeys.RESUME_DOWNLOADS_ON_START, true);
         COConfigurationManager.setParameter(VuzeKeys.GENERAL_DEFAULT_TORRENT_DIRECTORY, SystemUtils.getTorrentsDirectory().getAbsolutePath());
+        
+        // network parameters, fine tunning for android
+        /*
+        COConfigurationManager.setParameter("network.tcp.write.select.time", 1000);
+        COConfigurationManager.setParameter("network.tcp.write.select.min.time", 1000);
+        COConfigurationManager.setParameter("network.tcp.read.select.time", 1000);
+        COConfigurationManager.setParameter("network.tcp.read.select.min.time", 1000);
+        COConfigurationManager.setParameter("network.control.write.idle.time", 1000);
+        COConfigurationManager.setParameter("network.control.read.idle.time", 1000);
+        */
     }
 
     private List<DownloadManager> getDownloadManagersSupport() {

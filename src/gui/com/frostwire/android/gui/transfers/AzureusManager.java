@@ -18,15 +18,12 @@
 
 package com.frostwire.android.gui.transfers;
 
-import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 
 import org.gudy.azureus2.core3.config.COConfigurationManager;
 import org.gudy.azureus2.core3.global.GlobalManager;
-import org.gudy.azureus2.core3.util.SystemProperties;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -35,15 +32,11 @@ import android.util.Log;
 
 import com.aelitis.azureus.core.AzureusCore;
 import com.aelitis.azureus.core.AzureusCoreException;
-import com.aelitis.azureus.core.AzureusCoreFactory;
-import com.aelitis.azureus.core.AzureusCoreLifecycleAdapter;
 import com.frostwire.android.R;
 import com.frostwire.android.core.ConfigurationManager;
 import com.frostwire.android.core.Constants;
 import com.frostwire.android.core.CoreRuntimeException;
 import com.frostwire.android.gui.Librarian;
-import com.frostwire.android.gui.NetworkManager;
-import com.frostwire.android.gui.util.SystemUtils;
 import com.frostwire.android.util.concurrent.ExecutorsHelper;
 import com.frostwire.vuze.VuzeManager;
 
@@ -96,33 +89,11 @@ public final class AzureusManager {
     }
 
     private AzureusManager(Context context) {
-        initConfiguration();
         asyncSaveConfiguration();
 
         loadMessages(context);
         azureusInit();
         azureusStart();
-    }
-
-    public void pause() {
-        try {
-            //SimpleTimer.pause();
-            //azureusCore.getGlobalManager().pauseDownloads();
-        } catch (Throwable e) {
-            Log.e(TAG, "Failed to pause Azureus core", e);
-        }
-    }
-
-    public void resume() {
-        try {
-            //COConfigurationManager.setParameter("UDP.Listen.Port.Enable", NetworkManager.instance().isDataWIFIUp());
-            //asyncSaveConfiguration();
-
-            //SimpleTimer.resume();
-            //azureusCore.getGlobalManager().resumeDownloads();
-        } catch (Throwable e) {
-            Log.e(TAG, "Failed to resume Azureus core", e);
-        }
     }
 
     public static void revertToDefaultConfiguration() {
@@ -195,28 +166,6 @@ public final class AzureusManager {
 
     GlobalManager getGlobalManager() {
         return getAzureusCore().getGlobalManager();
-    }
-
-    public static void initConfiguration() {
-        File azureusPath = SystemUtils.getAzureusDirectory();
-
-        System.setProperty("azureus.config.path", azureusPath.getAbsolutePath());
-        System.setProperty("azureus.install.path", azureusPath.getAbsolutePath());
-        System.setProperty("azureus.loadplugins", "0"); // disable third party azureus plugins
-
-        SystemProperties.APPLICATION_NAME = "azureus";
-        SystemProperties.setUserPath(azureusPath.getAbsolutePath());
-
-        COConfigurationManager.setParameter("Auto Adjust Transfer Defaults", false);
-        COConfigurationManager.setParameter("General_sDefaultTorrent_Directory", SystemUtils.getTorrentsDirectory().getAbsolutePath());
-
-        // network parameters, fine tunning for android
-        COConfigurationManager.setParameter("network.tcp.write.select.time", 1000);
-        COConfigurationManager.setParameter("network.tcp.write.select.min.time", 1000);
-        COConfigurationManager.setParameter("network.tcp.read.select.time", 1000);
-        COConfigurationManager.setParameter("network.tcp.read.select.min.time", 1000);
-        COConfigurationManager.setParameter("network.control.write.idle.time", 1000);
-        COConfigurationManager.setParameter("network.control.read.idle.time", 1000);
     }
 
     private void azureusInit() {

@@ -154,11 +154,6 @@ public class EngineService extends Service implements IEngineService {
         Librarian.instance().invalidateCountCache();
 
         AzureusManager.create(this);
-        //TransferManager.instance().loadTorrents();
-
-        if (AzureusManager.isCreated()) { // safe move
-            AzureusManager.instance().resume();
-        }
 
         httpServerManager.start(NetworkManager.instance().getListeningPort());
 
@@ -176,8 +171,6 @@ public class EngineService extends Service implements IEngineService {
         state = STATE_STOPPING;
 
         httpServerManager.stop();
-
-        AzureusManager.instance().pause();
 
         PeerManager.instance().clear();
 

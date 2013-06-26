@@ -58,7 +58,6 @@ public class DeepSearchTest extends ApplicationTestCase<MockApplication> {
         super.setUp();
 
         ConfigurationManager.create(getApplication());
-        AzureusManager.initConfiguration();
     }
 
     @LargeTest
