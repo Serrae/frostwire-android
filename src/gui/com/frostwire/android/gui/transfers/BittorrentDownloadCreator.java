@@ -44,6 +44,7 @@ import com.frostwire.android.util.ByteUtils;
 import com.frostwire.android.util.StringUtils;
 import com.frostwire.search.torrent.TorrentCrawledSearchResult;
 import com.frostwire.search.torrent.TorrentSearchResult;
+import com.frostwire.vuze.VuzeDownloadManager;
 
 /**
  * @author gubatron
@@ -112,7 +113,7 @@ final class BittorrentDownloadCreator {
         setup(dm, false);
 
         try {
-            return new AzureusBittorrentDownload(manager, dm);
+            return new AzureusBittorrentDownload(manager, new VuzeDownloadManager(dm));
         } catch (TOTorrentException e) {
             return null;// review this
         }
@@ -189,7 +190,7 @@ final class BittorrentDownloadCreator {
 
         setup(dm, true);
 
-        return new AzureusBittorrentDownload(manager, dm);
+        return new AzureusBittorrentDownload(manager, new VuzeDownloadManager(dm));
     }
 
     private static boolean isDownloadingAll(boolean[] fileSelection) {
