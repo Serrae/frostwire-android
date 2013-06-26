@@ -41,7 +41,7 @@ import com.frostwire.search.SearchResult;
 import com.frostwire.search.soundcloud.SoundcloudSearchResult;
 import com.frostwire.search.torrent.TorrentSearchResult;
 import com.frostwire.search.youtube.YouTubeCrawledSearchResult;
-import com.frostwire.vuze.BTorrentManager;
+import com.frostwire.vuze.VuzeManager;
 
 /**
  * @author gubatron
@@ -269,7 +269,7 @@ public final class TransferManager {
     public void loadTorrents() {
         bittorrentDownloads.clear();
 
-        BTorrentManager.getInstance().getDownloadManagers().setListener(new AsyncFutureListener<List<DownloadManager>>() {
+        VuzeManager.getInstance().getDownloadManagers().setListener(new AsyncFutureListener<List<DownloadManager>>() {
 
             @Override
             public void onComplete(AsyncFuture<List<DownloadManager>> future) {

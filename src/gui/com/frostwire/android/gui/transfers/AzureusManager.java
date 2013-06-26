@@ -45,7 +45,7 @@ import com.frostwire.android.gui.Librarian;
 import com.frostwire.android.gui.NetworkManager;
 import com.frostwire.android.gui.util.SystemUtils;
 import com.frostwire.android.util.concurrent.ExecutorsHelper;
-import com.frostwire.vuze.BTorrentManager;
+import com.frostwire.vuze.VuzeManager;
 
 /**
  * Class to initialize the azureus core.
@@ -190,7 +190,7 @@ public final class AzureusManager {
     }
 
     AzureusCore getAzureusCore() {
-        return BTorrentManager.getInstance().getAzureusCore();
+        return VuzeManager.getInstance().getAzureusCore();
     }
 
     GlobalManager getGlobalManager() {
@@ -233,7 +233,7 @@ public final class AzureusManager {
     }
 
     private void azureusStart() {
-        BTorrentManager.getInstance().start();
+        VuzeManager.getInstance().start();
     }
 
     private void registerPreferencesChangeListener() {

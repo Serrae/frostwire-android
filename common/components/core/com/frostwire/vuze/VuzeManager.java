@@ -32,19 +32,19 @@ import com.frostwire.concurrent.AsyncFuture;
  * @author aldenml
  *
  */
-public final class BTorrentManager {
+public final class VuzeManager {
 
     private final VuzeEngine engine;
 
-    private BTorrentManager() {
+    private VuzeManager() {
         this.engine = new VuzeEngine();
     }
 
     private static class Loader {
-        static BTorrentManager INSTANCE = new BTorrentManager();
+        static VuzeManager INSTANCE = new VuzeManager();
     }
 
-    public static BTorrentManager getInstance() {
+    public static VuzeManager getInstance() {
         return Loader.INSTANCE;
     }
 
