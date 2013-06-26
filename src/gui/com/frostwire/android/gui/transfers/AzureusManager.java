@@ -45,7 +45,7 @@ import com.frostwire.android.gui.Librarian;
 import com.frostwire.android.gui.NetworkManager;
 import com.frostwire.android.gui.util.SystemUtils;
 import com.frostwire.android.util.concurrent.ExecutorsHelper;
-import com.frostwire.bittorrent.BTorrentManager;
+import com.frostwire.vuze.BTorrentManager;
 
 /**
  * Class to initialize the azureus core.

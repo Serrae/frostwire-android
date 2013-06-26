@@ -16,36 +16,47 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.frostwire.bittorrent.vuze;
+package com.frostwire.vuze;
+
+import java.util.List;
 
 import org.gudy.azureus2.core3.download.DownloadManager;
-import org.gudy.azureus2.core3.torrent.TOTorrentException;
 
-import com.frostwire.bittorrent.BTorrentDownloadManager;
+import com.aelitis.azureus.core.AzureusCore;
+import com.frostwire.concurrent.AsyncFuture;
 
 /**
+ * Class to initialize the azureus core.
+ * 
  * @author gubatron
  * @author aldenml
  *
  */
-public class VuzeDownloadManager implements BTorrentDownloadManager {
+public final class BTorrentManager {
 
-    private final DownloadManager dm;
+    private final VuzeEngine engine;
 
-    public VuzeDownloadManager(DownloadManager dm) {
-        this.dm = dm;
+    private BTorrentManager() {
+        this.engine = new VuzeEngine();
     }
 
-    public DownloadManager getDownloadManager() {
-        return dm;
+    private static class Loader {
+        static BTorrentManager INSTANCE = new BTorrentManager();
     }
 
-    @Override
-    public byte[] getHash() {
-        try {
-            return dm.getTorrent().getHash();
-        } catch (TOTorrentException e) {
-            throw new RuntimeException(e); // can't recover from this
-        }
+    public static BTorrentManager getInstance() {
+        return Loader.INSTANCE;
+    }
+
+    public void start() {
+        engine.start();
+    }
+
+    public AsyncFuture<List<DownloadManager>> getDownloadManagers() {
+        return engine.getDownloadManagers();
+    }
+
+    public AzureusCore getAzureusCore() {
+        return ((VuzeEngine) engine).getCore();
     }
 }

@@ -16,10 +16,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.frostwire.bittorrent.vuze;
+package com.frostwire.vuze;
 
 import java.io.File;
-import java.util.LinkedList;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CountDownLatch;
@@ -33,8 +33,6 @@ import com.aelitis.azureus.core.AzureusCore;
 import com.aelitis.azureus.core.AzureusCoreFactory;
 import com.aelitis.azureus.core.AzureusCoreLifecycleAdapter;
 import com.frostwire.android.gui.util.SystemUtils;
-import com.frostwire.bittorrent.BTorrentDownloadManager;
-import com.frostwire.bittorrent.BTorrentEngine;
 import com.frostwire.concurrent.AsyncExecutor;
 import com.frostwire.concurrent.AsyncExecutors;
 import com.frostwire.concurrent.AsyncFuture;
@@ -45,7 +43,7 @@ import com.frostwire.concurrent.Futures;
  * @author aldenml
  *
  */
-public final class VuzeEngine implements BTorrentEngine {
+public final class VuzeEngine {
 
     private static final AsyncExecutor executor = AsyncExecutors.newSingleThreadExecutor();
 
@@ -77,15 +75,14 @@ public final class VuzeEngine implements BTorrentEngine {
 
     }
 
-    @Override
-    public AsyncFuture<List<BTorrentDownloadManager>> getDownloadManagers() {
+    public AsyncFuture<List<DownloadManager>> getDownloadManagers() {
         if (core.isStarted()) {
             return Futures.successful(getDownloadManagersSupport());
         }
 
-        return executor.submit(new Callable<List<BTorrentDownloadManager>>() {
+        return executor.submit(new Callable<List<DownloadManager>>() {
             @Override
-            public List<BTorrentDownloadManager> call() throws Exception {
+            public List<DownloadManager> call() throws Exception {
                 coreStarted.await();
                 return getDownloadManagersSupport();
             }
@@ -107,17 +104,9 @@ public final class VuzeEngine implements BTorrentEngine {
         COConfigurationManager.setParameter(VuzeKeys.GENERAL_DEFAULT_TORRENT_DIRECTORY, SystemUtils.getTorrentsDirectory().getAbsolutePath());
     }
 
-    private List<BTorrentDownloadManager> getDownloadManagersSupport() {
-        List<BTorrentDownloadManager> result = new LinkedList<BTorrentDownloadManager>();
-
+    private List<DownloadManager> getDownloadManagersSupport() {
         GlobalManager gm = core.getGlobalManager();
-        List<DownloadManager> dms = gm.getDownloadManagers();
-
-        for (DownloadManager dm : dms) {
-            result.add(new VuzeDownloadManager(dm));
-        }
-
-        return result;
+        return new ArrayList<DownloadManager>(gm.getDownloadManagers());
     }
 
     private class CoreLifecycleAdapter extends AzureusCoreLifecycleAdapter {

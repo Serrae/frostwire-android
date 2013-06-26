@@ -34,9 +34,6 @@ import com.frostwire.android.core.DesktopUploadRequest;
 import com.frostwire.android.core.FileDescriptor;
 import com.frostwire.android.gui.NetworkManager;
 import com.frostwire.android.gui.Peer;
-import com.frostwire.bittorrent.BTorrentDownloadManager;
-import com.frostwire.bittorrent.BTorrentManager;
-import com.frostwire.bittorrent.vuze.VuzeDownloadManager;
 import com.frostwire.concurrent.AsyncFuture;
 import com.frostwire.concurrent.AsyncFutureListener;
 import com.frostwire.search.HttpSearchResult;
@@ -44,6 +41,7 @@ import com.frostwire.search.SearchResult;
 import com.frostwire.search.soundcloud.SoundcloudSearchResult;
 import com.frostwire.search.torrent.TorrentSearchResult;
 import com.frostwire.search.youtube.YouTubeCrawledSearchResult;
+import com.frostwire.vuze.BTorrentManager;
 
 /**
  * @author gubatron
@@ -77,7 +75,7 @@ public final class TransferManager {
         this.bittorrentDownloads = new LinkedList<BittorrentDownload>();
 
         this.downloadsToReview = 0;
-        
+
         loadTorrents();
     }
 
@@ -271,17 +269,12 @@ public final class TransferManager {
     public void loadTorrents() {
         bittorrentDownloads.clear();
 
-        BTorrentManager.getInstance().getDownloadManagers().setListener(new AsyncFutureListener<List<BTorrentDownloadManager>>() {
+        BTorrentManager.getInstance().getDownloadManagers().setListener(new AsyncFutureListener<List<DownloadManager>>() {
 
             @Override
-            public void onComplete(AsyncFuture<List<BTorrentDownloadManager>> future) {
+            public void onComplete(AsyncFuture<List<DownloadManager>> future) {
                 try {
-                    List<BTorrentDownloadManager> dms = future.get();
-
-                    List<DownloadManager> downloads = new ArrayList<DownloadManager>();
-                    for (BTorrentDownloadManager obj : dms) {
-                        downloads.add(((VuzeDownloadManager) obj).getDownloadManager());
-                    }
+                    List<DownloadManager> dms = future.get();
 
                     boolean stop = false;
                     if (!ConfigurationManager.instance().getBoolean(Constants.PREF_KEY_TORRENT_SEED_FINISHED_TORRENTS)) {
@@ -292,7 +285,7 @@ public final class TransferManager {
                         }
                     }
 
-                    for (DownloadManager dm : downloads) {
+                    for (DownloadManager dm : dms) {
                         if (stop && TorrentUtil.isComplete(dm)) {
                             TorrentUtil.stop(dm);
                         }
