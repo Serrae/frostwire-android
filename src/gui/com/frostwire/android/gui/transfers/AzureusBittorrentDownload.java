@@ -76,19 +76,7 @@ final class AzureusBittorrentDownload implements BittorrentDownload {
     }
 
     public int getProgress() {
-        if (isComplete()) {
-            return 100;
-        }
-
-        if (downloadManager.isPartial()) {
-            long downloaded = 0;
-            for (DiskManagerFileInfo fileInfo : fileInfoSet) {
-                downloaded += fileInfo.getDownloaded();
-            }
-            return (int) ((downloaded * 100) / size);
-        } else {
-            return downloadManager.getDM().getStats().getDownloadCompleted(true) / 10;
-        }
+        return downloadManager.getProgress();
     }
 
     public long getSize() {
@@ -131,31 +119,31 @@ final class AzureusBittorrentDownload implements BittorrentDownload {
     }
 
     public File getSavePath() {
-        return downloadManager.getDM().getSaveLocation();
+        return downloadManager.getSavePath();
     }
 
     public long getBytesReceived() {
-        return downloadManager.getDM().getStats().getTotalGoodDataBytesReceived();
+        return downloadManager.getBytesReceived();
     }
 
     public long getBytesSent() {
-        return downloadManager.getDM().getStats().getTotalDataBytesSent();
+        return downloadManager.getBytesSent();
     }
 
     public long getDownloadSpeed() {
-        return downloadManager.getDM().getStats().getDataReceiveRate();// / 1000;
+        return downloadManager.getDownloadSpeed();
     }
 
     public long getUploadSpeed() {
-        return downloadManager.getDM().getStats().getDataSendRate() / 1000;
+        return downloadManager.getUploadSpeed();
     }
 
     public long getETA() {
-        return downloadManager.getDM().getStats().getETA();
+        return downloadManager.getETA();
     }
 
     public Date getDateCreated() {
-        return new Date(downloadManager.getDM().getCreationTime());
+        return downloadManager.getCreated();
     }
 
     public String getPeers() {

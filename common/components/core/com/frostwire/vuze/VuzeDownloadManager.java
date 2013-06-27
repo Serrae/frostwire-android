@@ -19,6 +19,7 @@
 package com.frostwire.vuze;
 
 import java.io.File;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -43,6 +44,8 @@ public final class VuzeDownloadManager {
     private final boolean partial;
     private final long size;
     private final byte[] hash;
+    private final File savePath;
+    private final Date created;
 
     public VuzeDownloadManager(DownloadManager dm) {
         this.dm = dm;
@@ -52,6 +55,8 @@ public final class VuzeDownloadManager {
         this.partial = !skippedFiles.isEmpty();
         this.size = calculateSize();
         this.hash = calculateHash(dm);
+        this.savePath = dm.getSaveLocation();
+        this.created = new Date(dm.getCreationTime());
     }
 
     public DownloadManager getDM() {
@@ -78,6 +83,14 @@ public final class VuzeDownloadManager {
         return hash;
     }
 
+    public File getSavePath() {
+        return savePath;
+    }
+
+    public Date getCreated() {
+        return created;
+    }
+
     public boolean isComplete() {
         return dm.getAssumedComplete();
     }
@@ -100,6 +113,46 @@ public final class VuzeDownloadManager {
 
     public String getStatus() {
         return DisplayFormatters.formatDownloadStatus(dm);
+    }
+
+    public int getProgress() {
+        int progress = 0;
+
+        if (isComplete()) {
+            progress = 100;
+        }
+
+        if (partial) {
+            long downloaded = 0;
+            for (DiskManagerFileInfo fileInfo : noSkippedFileInfoSet) {
+                downloaded += fileInfo.getDownloaded();
+            }
+            progress = (int) ((downloaded * 100) / size);
+        } else {
+            progress = dm.getStats().getDownloadCompleted(true) / 10;
+        }
+
+        return progress;
+    }
+
+    public long getBytesReceived() {
+        return dm.getStats().getTotalGoodDataBytesReceived();
+    }
+
+    public long getBytesSent() {
+        return dm.getStats().getTotalDataBytesSent();
+    }
+
+    public long getDownloadSpeed() {
+        return dm.getStats().getDataReceiveRate();
+    }
+
+    public long getUploadSpeed() {
+        return dm.getStats().getDataSendRate();
+    }
+
+    public long getETA() {
+        return dm.getStats().getETA();
     }
 
     public void pause() {
