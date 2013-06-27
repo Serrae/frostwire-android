@@ -72,7 +72,7 @@ final class AzureusBittorrentDownload implements BittorrentDownload {
     }
 
     public String getStatus() {
-        return DisplayFormatters.formatDownloadStatus(downloadManager.getDM());
+        return downloadManager.getStatus();
     }
 
     public int getProgress() {
@@ -96,23 +96,23 @@ final class AzureusBittorrentDownload implements BittorrentDownload {
     }
 
     public boolean isResumable() {
-        return TorrentUtil.isStartable(downloadManager.getDM());
+        return downloadManager.isResumable();
     }
 
     public boolean isPausable() {
-        return downloadManager.isStopable();
+        return downloadManager.isPausable();
     }
 
     public boolean isComplete() {
-        return TorrentUtil.isComplete(downloadManager.getDM());
+        return downloadManager.isComplete();
     }
 
     public boolean isDownloading() {
-        return downloadManager.getDM().getState() == DownloadManager.STATE_DOWNLOADING;
+        return downloadManager.isDownloading();
     }
 
     public boolean isSeeding() {
-        return downloadManager.getDM().getState() == DownloadManager.STATE_SEEDING;
+        return downloadManager.isSeeding();
     }
 
     public List<? extends BittorrentDownloadItem> getItems() {
@@ -123,15 +123,11 @@ final class AzureusBittorrentDownload implements BittorrentDownload {
     }
 
     public void pause() {
-        if (isPausable()) {
-            TorrentUtil.stop(downloadManager.getDM());
-        }
+        downloadManager.pause();
     }
 
     public void resume() {
-        if (isResumable()) {
-            TorrentUtil.start(downloadManager.getDM());
-        }
+        downloadManager.resume();
     }
 
     public File getSavePath() {

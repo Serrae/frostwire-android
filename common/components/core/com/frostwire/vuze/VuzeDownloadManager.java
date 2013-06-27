@@ -27,6 +27,7 @@ import org.gudy.azureus2.core3.disk.DiskManagerFileInfo;
 import org.gudy.azureus2.core3.disk.DiskManagerFileInfoSet;
 import org.gudy.azureus2.core3.download.DownloadManager;
 import org.gudy.azureus2.core3.torrent.TOTorrentException;
+import org.gudy.azureus2.core3.util.DisplayFormatters;
 
 /**
  * @author gubatron
@@ -77,8 +78,40 @@ public final class VuzeDownloadManager {
         return hash;
     }
 
-    public boolean isStopable() {
+    public boolean isComplete() {
+        return dm.getAssumedComplete();
+    }
+
+    public boolean isPausable() {
         return ManagerUtils.isStopable(dm);
+    }
+
+    public boolean isResumable() {
+        return ManagerUtils.isStartable(dm);
+    }
+
+    public boolean isDownloading() {
+        return dm.getState() == DownloadManager.STATE_DOWNLOADING;
+    }
+
+    public boolean isSeeding() {
+        return dm.getState() == DownloadManager.STATE_SEEDING;
+    }
+
+    public String getStatus() {
+        return DisplayFormatters.formatDownloadStatus(dm);
+    }
+
+    public void pause() {
+        if (isPausable()) {
+            ManagerUtils.stop(dm);
+        }
+    }
+
+    public void resume() {
+        if (isResumable()) {
+            ManagerUtils.start(dm);
+        }
     }
 
     private Set<DiskManagerFileInfo> calculateNoSkippedFileInfoSet(DownloadManager dm) {
