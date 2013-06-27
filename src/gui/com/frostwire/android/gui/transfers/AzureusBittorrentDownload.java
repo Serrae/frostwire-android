@@ -26,7 +26,6 @@ import java.util.List;
 import java.util.Set;
 
 import org.gudy.azureus2.core3.disk.DiskManagerFileInfo;
-import org.gudy.azureus2.core3.download.DownloadManager;
 import org.gudy.azureus2.core3.torrent.TOTorrentException;
 
 import com.frostwire.vuze.VuzeDownloadManager;
@@ -184,10 +183,6 @@ final class AzureusBittorrentDownload implements BittorrentDownload {
     public void cancel(boolean deleteData, boolean async) {
         manager.remove(this);
         downloadManager.removeDownload(deleteData, deleteData);
-    }
-
-    DownloadManager getDownloadManager() {
-        return downloadManager.getDM();
     }
 
     @Override

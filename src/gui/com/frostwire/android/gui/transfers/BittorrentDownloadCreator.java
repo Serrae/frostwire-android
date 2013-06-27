@@ -237,7 +237,7 @@ final class BittorrentDownloadCreator {
         }
     }
 
-    private static BittorrentDownload findDownload(TransferManager manager, DownloadManager dm) {
+    private static BittorrentDownload findDownload(TransferManager manager, DownloadManager dm) throws TOTorrentException {
         for (BittorrentDownload download : manager.getBittorrentDownloads()) {
             BittorrentDownload btDownload = download;
             if (download instanceof TorrentFetcherDownload) {
@@ -245,7 +245,9 @@ final class BittorrentDownloadCreator {
             }
             if (btDownload != null) {
                 if (btDownload instanceof AzureusBittorrentDownload) {
-                    if (((AzureusBittorrentDownload) btDownload).getDownloadManager().equals(dm)) {
+                    String dmHash = TorrentUtil.hashToString(dm.getTorrent().getHash());
+                    String btDownloadHash = ((AzureusBittorrentDownload) btDownload).getHash();
+                    if (btDownloadHash.equals(dmHash)) {
                         return download;
                     }
                 }

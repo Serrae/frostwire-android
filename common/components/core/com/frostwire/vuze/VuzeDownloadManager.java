@@ -60,10 +60,6 @@ public final class VuzeDownloadManager {
         this.created = new Date(dm.getCreationTime());
     }
 
-    public DownloadManager getDM() {
-        return dm;
-    }
-
     public Set<DiskManagerFileInfo> getNoSkippedFileInfoSet() {
         return noSkippedFileInfoSet;
     }
