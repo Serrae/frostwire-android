@@ -51,7 +51,7 @@ public final class VuzeDownloadManager {
     public VuzeDownloadManager(DownloadManager dm) {
         this.dm = dm;
         this.noSkippedFileInfoSet = calculateNoSkippedFileInfoSet(dm);
-        this.skippedFiles = calculateSkippedFiles(dm);
+        this.skippedFiles = VuzeUtils.getSkippedFiles(dm);
         this.displayName = calculateDisplayName();
         this.partial = !skippedFiles.isEmpty();
         this.size = calculateSize();
@@ -232,17 +232,6 @@ public final class VuzeDownloadManager {
         for (DiskManagerFileInfo fileInfo : infoSet.getFiles()) {
             if (!fileInfo.isSkipped()) {
                 set.add(fileInfo);
-            }
-        }
-        return set;
-    }
-
-    private Set<File> calculateSkippedFiles(DownloadManager dm) {
-        Set<File> set = new HashSet<File>();
-        DiskManagerFileInfoSet infoSet = dm.getDiskManagerFileInfoSet();
-        for (DiskManagerFileInfo fileInfo : infoSet.getFiles()) {
-            if (fileInfo.isSkipped()) {
-                set.add(fileInfo.getFile(false));
             }
         }
         return set;

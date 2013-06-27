@@ -64,12 +64,12 @@ import com.frostwire.android.core.providers.UniversalStore.Applications;
 import com.frostwire.android.core.providers.UniversalStore.Applications.ApplicationsColumns;
 import com.frostwire.android.core.providers.UniversalStore.Sharing;
 import com.frostwire.android.core.providers.UniversalStore.Sharing.SharingColumns;
-import com.frostwire.android.gui.transfers.TorrentUtil;
 import com.frostwire.android.gui.util.Apk;
 import com.frostwire.android.gui.util.SystemUtils;
 import com.frostwire.android.util.StringUtils;
 import com.frostwire.gui.upnp.UPnPManager;
 import com.frostwire.util.FileUtils;
+import com.frostwire.vuze.VuzeUtils;
 
 /**
  * The Librarian is in charge of:
@@ -285,7 +285,7 @@ public final class Librarian {
     }
 
     public void scan(File file) {
-        scan(file, TorrentUtil.getIgnorableFiles());
+        scan(file, VuzeUtils.getIgnorableFiles());
     }
 
     public Finger finger(boolean local) {
@@ -531,7 +531,7 @@ public final class Librarian {
     }
 
     private void syncMediaStoreSupport() {
-        Set<File> ignorableFiles = TorrentUtil.getIgnorableFiles();
+        Set<File> ignorableFiles = VuzeUtils.getIgnorableFiles();
 
         syncMediaStore(Constants.FILE_TYPE_AUDIO, ignorableFiles);
         syncMediaStore(Constants.FILE_TYPE_PICTURES, ignorableFiles);
