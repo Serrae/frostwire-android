@@ -100,7 +100,7 @@ final class AzureusBittorrentDownload implements BittorrentDownload {
     }
 
     public boolean isPausable() {
-        return TorrentUtil.isStopable(downloadManager.getDM());
+        return downloadManager.isStopable();
     }
 
     public boolean isComplete() {

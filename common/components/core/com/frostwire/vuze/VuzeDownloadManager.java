@@ -77,6 +77,10 @@ public final class VuzeDownloadManager {
         return hash;
     }
 
+    public boolean isStopable() {
+        return ManagerUtils.isStopable(dm);
+    }
+
     private Set<DiskManagerFileInfo> calculateNoSkippedFileInfoSet(DownloadManager dm) {
         Set<DiskManagerFileInfo> set = new HashSet<DiskManagerFileInfo>();
         DiskManagerFileInfoSet infoSet = dm.getDiskManagerFileInfoSet();
