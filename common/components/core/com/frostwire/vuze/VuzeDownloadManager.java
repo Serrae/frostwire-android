@@ -226,6 +226,10 @@ public final class VuzeDownloadManager {
         }
     }
 
+    public void removeDownload(boolean deleteTorrent, boolean deleteData) {
+        ManagerUtils.asyncStopDelete(dm, DownloadManager.STATE_STOPPED, deleteTorrent, deleteData, null);
+    }
+
     private Set<DiskManagerFileInfo> calculateNoSkippedFileInfoSet(DownloadManager dm) {
         Set<DiskManagerFileInfo> set = new HashSet<DiskManagerFileInfo>();
         DiskManagerFileInfoSet infoSet = dm.getDiskManagerFileInfoSet();
