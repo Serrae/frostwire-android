@@ -50,7 +50,7 @@ final class AzureusBittorrentDownload implements BittorrentDownload {
         this.manager = manager;
         this.dm = dm;
 
-        this.hash = TorrentUtil.hashToString(dm.getHash());
+        this.hash = VuzeFormatter.formatHash(dm.getHash());
 
         this.size = dm.getSize();
         this.displayName = dm.getDisplayName();

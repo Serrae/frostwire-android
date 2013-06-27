@@ -45,6 +45,7 @@ import com.frostwire.android.util.StringUtils;
 import com.frostwire.search.torrent.TorrentCrawledSearchResult;
 import com.frostwire.search.torrent.TorrentSearchResult;
 import com.frostwire.vuze.VuzeDownloadManager;
+import com.frostwire.vuze.VuzeFormatter;
 
 /**
  * @author gubatron
@@ -245,7 +246,7 @@ final class BittorrentDownloadCreator {
             }
             if (btDownload != null) {
                 if (btDownload instanceof AzureusBittorrentDownload) {
-                    String dmHash = TorrentUtil.hashToString(dm.getTorrent().getHash());
+                    String dmHash = VuzeFormatter.formatHash(dm.getTorrent().getHash());
                     String btDownloadHash = ((AzureusBittorrentDownload) btDownload).getHash();
                     if (btDownloadHash.equals(dmHash)) {
                         return download;

@@ -28,6 +28,8 @@ import org.gudy.azureus2.core3.disk.DiskManagerFileInfo;
 import org.gudy.azureus2.core3.disk.DiskManagerFileInfoSet;
 import org.gudy.azureus2.core3.download.DownloadManager;
 
+import com.frostwire.util.FileUtils;
+
 /**
  * @author gubatron
  * @author aldenml
@@ -53,6 +55,20 @@ public final class VuzeUtils {
             }
         }
         return set;
+    }
+
+    /**
+     * Deletes incomplete and skipped files.
+     */
+    static void finalCleanup(DownloadManager dm) {
+        Set<File> filesToDelete = getSkippedFiles(dm);
+        filesToDelete.addAll(getIncompleteFiles(dm));
+
+        for (File f : filesToDelete) {
+            f.delete();
+        }
+
+        FileUtils.deleteEmptyDirectoryRecursive(dm.getSaveLocation());
     }
 
     private static Set<File> getSkipedFiles() {

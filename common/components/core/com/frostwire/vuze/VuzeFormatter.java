@@ -106,4 +106,17 @@ public final class VuzeFormatter {
 
         return tmp;
     }
+
+    public static String formatHash(byte[] hash) {
+        String hex = "";
+        for (int i = 0; i < hash.length; i++) {
+            String t = Integer.toHexString(hash[i] & 0xFF);
+            if (t.length() < 2) {
+                t = "0" + t;
+            }
+            hex += t;
+        }
+
+        return hex;
+    }
 }

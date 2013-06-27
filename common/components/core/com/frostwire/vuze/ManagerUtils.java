@@ -564,6 +564,8 @@ class ManagerUtils {
 						deleteFailed.runSupport();
 					}
 				}
+
+                VuzeUtils.finalCleanup(dm);
 			}
 		});
 	}
