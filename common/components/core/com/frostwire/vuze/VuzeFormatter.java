@@ -75,6 +75,20 @@ public final class VuzeFormatter {
         }
     }
 
+    public static String formatPeers(int peers, int connectedPeers, boolean hasStarted, boolean hasScrape) {
+        String tmp;
+        if (hasStarted) {
+            tmp = hasScrape ? (connectedPeers > peers ? "%1" : "%1 " + "/" + " %2") : "%1";
+        } else {
+            tmp = hasScrape ? "%2" : "";
+        }
+
+        tmp = tmp.replaceAll("%1", String.valueOf(connectedPeers));
+        tmp = tmp.replaceAll("%2", String.valueOf(peers));
+
+        return tmp;
+    }
+
     public static String formatSeeds(int seeds, int connectedSeeds, boolean hasStarted, boolean hasScrape) {
         String tmp;
 

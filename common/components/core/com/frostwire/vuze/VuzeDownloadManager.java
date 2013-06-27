@@ -196,6 +196,10 @@ public final class VuzeDownloadManager {
         return seeds;
     }
 
+    public int getConnectedPeers() {
+        return dm.getNbPeers();
+    }
+
     public int getConnectedSeeds() {
         return dm.getNbSeeds();
     }

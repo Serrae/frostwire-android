@@ -28,8 +28,6 @@ import java.util.Set;
 import org.gudy.azureus2.core3.disk.DiskManagerFileInfo;
 import org.gudy.azureus2.core3.download.DownloadManager;
 import org.gudy.azureus2.core3.torrent.TOTorrentException;
-import org.gudy.azureus2.core3.tracker.client.TRTrackerScraperResponse;
-import org.gudy.azureus2.core3.util.DisplayFormatters;
 
 import com.frostwire.vuze.VuzeDownloadManager;
 import com.frostwire.vuze.VuzeFormatter;
@@ -147,46 +145,11 @@ final class AzureusBittorrentDownload implements BittorrentDownload {
     }
 
     public String getPeers() {
-        long lTotalPeers = -1;
-        long lConnectedPeers = 0;
-        if (downloadManager != null) {
-            lConnectedPeers = downloadManager.getDM().getNbPeers();
-
-            if (lTotalPeers == -1) {
-                TRTrackerScraperResponse response = downloadManager.getDM().getTrackerScrapeResponse();
-                if (response != null && response.isValid()) {
-                    lTotalPeers = response.getPeers();
-                }
-            }
-        }
-
-        long totalPeers = lTotalPeers;
-        if (totalPeers <= 0) {
-            DownloadManager dm = downloadManager.getDM();
-            if (dm != null) {
-                totalPeers = dm.getActivationCount();
-            }
-        }
-
-        //        long value = lConnectedPeers * 10000000;
-        //        if (totalPeers > 0)
-        //            value = value + totalPeers;
-
-        int state = downloadManager.getDM().getState();
-        boolean started = state == DownloadManager.STATE_SEEDING || state == DownloadManager.STATE_DOWNLOADING;
-        boolean hasScrape = lTotalPeers >= 0;
-
-        String tmp;
-        if (started) {
-            tmp = hasScrape ? (lConnectedPeers > lTotalPeers ? "%1" : "%1 " + "/" + " %2") : "%1";
-        } else {
-            tmp = hasScrape ? "%2" : "";
-        }
-
-        tmp = tmp.replaceAll("%1", String.valueOf(lConnectedPeers));
-        tmp = tmp.replaceAll("%2", String.valueOf(totalPeers));
-
-        return tmp;
+        int peers = downloadManager.getPeers();
+        int connectedPeers = downloadManager.getConnectedPeers();
+        boolean hasStarted = downloadManager.hasStarted();
+        boolean hasScrape = downloadManager.hasScrape();
+        return VuzeFormatter.formatPeers(peers, connectedPeers, hasStarted, hasScrape);
     }
 
     public String getSeeds() {
