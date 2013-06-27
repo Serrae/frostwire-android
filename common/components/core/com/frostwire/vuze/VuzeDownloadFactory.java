@@ -33,7 +33,7 @@ import org.gudy.azureus2.core3.global.GlobalManager;
  * @author aldenml
  *
  */
-final class VuzeDownloadFactory {
+public final class VuzeDownloadFactory {
 
     private VuzeDownloadFactory() {
     }

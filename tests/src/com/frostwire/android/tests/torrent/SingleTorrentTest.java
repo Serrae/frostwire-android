@@ -39,7 +39,7 @@ public class SingleTorrentTest extends TestCase {
 
     @MediumTest
     public void testFromUrl1() {
-        testDownloadFrom("http://www.mininova.org/tor/3191902/0"); // good torrent
+        testDownloadFrom("http://www.mininova.org/get/3191902"); // good torrent
     }
 
     public void testDownloadFrom(String url) {
