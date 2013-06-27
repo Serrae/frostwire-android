@@ -21,6 +21,7 @@ package com.frostwire.vuze;
 import java.util.List;
 
 import org.gudy.azureus2.core3.download.DownloadManager;
+import org.gudy.azureus2.core3.global.GlobalManager;
 
 import com.aelitis.azureus.core.AzureusCore;
 import com.frostwire.concurrent.AsyncFuture;
@@ -57,6 +58,10 @@ public final class VuzeManager {
     }
 
     public AzureusCore getAzureusCore() {
-        return ((VuzeEngine) engine).getCore();
+        return engine.getCore();
+    }
+
+    GlobalManager getGlobalManager() {
+        return engine.getGlobalManager();
     }
 }

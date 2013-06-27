@@ -24,6 +24,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.apache.commons.io.FilenameUtils;
+import org.bouncycastle.util.Arrays;
 import org.gudy.azureus2.core3.disk.DiskManagerFileInfo;
 import org.gudy.azureus2.core3.disk.DiskManagerFileInfoSet;
 import org.gudy.azureus2.core3.download.DownloadManager;
@@ -224,6 +225,20 @@ public final class VuzeDownloadManager {
 
     public void removeDownload(boolean deleteTorrent, boolean deleteData) {
         ManagerUtils.asyncStopDelete(dm, DownloadManager.STATE_STOPPED, deleteTorrent, deleteData, null);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        boolean equals = false;
+
+        if (o instanceof VuzeDownloadManager) {
+            VuzeDownloadManager other = (VuzeDownloadManager) o;
+            if (dm.equals(other.dm) || Arrays.areEqual(getHash(), other.getHash())) {
+                equals = true;
+            }
+        }
+
+        return equals;
     }
 
     private Set<DiskManagerFileInfo> calculateNoSkippedFileInfoSet(DownloadManager dm) {

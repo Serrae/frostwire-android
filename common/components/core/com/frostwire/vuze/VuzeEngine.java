@@ -63,6 +63,10 @@ final class VuzeEngine {
         return core;
     }
 
+    public GlobalManager getGlobalManager() {
+        return core.getGlobalManager();
+    }
+
     public void start() {
         core.start();
     }
