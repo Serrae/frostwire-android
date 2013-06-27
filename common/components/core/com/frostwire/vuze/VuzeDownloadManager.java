@@ -28,6 +28,7 @@ import org.gudy.azureus2.core3.disk.DiskManagerFileInfo;
 import org.gudy.azureus2.core3.disk.DiskManagerFileInfoSet;
 import org.gudy.azureus2.core3.download.DownloadManager;
 import org.gudy.azureus2.core3.torrent.TOTorrentException;
+import org.gudy.azureus2.core3.tracker.client.TRTrackerScraperResponse;
 import org.gudy.azureus2.core3.util.DisplayFormatters;
 
 /**
@@ -116,7 +117,7 @@ public final class VuzeDownloadManager {
     }
 
     public int getProgress() {
-        int progress = 0;
+        int progress;
 
         if (isComplete()) {
             progress = 100;
@@ -157,6 +158,42 @@ public final class VuzeDownloadManager {
 
     public int getShareRatio() {
         return dm.getStats().getShareRatio();
+    }
+
+    public int getPeers() {
+        int peers;
+
+        TRTrackerScraperResponse response = dm.getTrackerScrapeResponse();
+
+        if (response != null && response.isValid()) {
+            int trackerPeerCount = response.getPeers();
+            peers = dm.getNbPeers();
+            if (peers == 0 || trackerPeerCount > peers) {
+                if (trackerPeerCount <= 0) {
+                    peers = dm.getActivationCount();
+                } else {
+                    peers = trackerPeerCount;
+                }
+            }
+        } else {
+            peers = dm.getNbPeers();
+        }
+
+        return peers;
+    }
+
+    public int getSeeds() {
+        int seeds;
+
+        TRTrackerScraperResponse response = dm.getTrackerScrapeResponse();
+
+        if (response != null && response.isValid()) {
+            seeds = Math.max(dm.getNbSeeds(), response.getSeeds());
+        } else {
+            seeds = dm.getNbSeeds();
+        }
+
+        return seeds;
     }
 
     public void pause() {

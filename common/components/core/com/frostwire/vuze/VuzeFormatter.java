@@ -49,4 +49,29 @@ public final class VuzeFormatter {
 
         return shareRatio;
     }
+
+    public static String formatSeedToPeerRatio(int seeds, int peers) {
+        float ratio = -1;
+
+        if (peers < 0 || seeds < 0) {
+            ratio = 0;
+        } else {
+            if (peers == 0) {
+                if (seeds == 0)
+                    ratio = 0;
+                else
+                    ratio = Float.POSITIVE_INFINITY;
+            } else {
+                ratio = (float) seeds / peers;
+            }
+        }
+
+        if (ratio == -1) {
+            return "";
+        } else if (ratio == 0) {
+            return "??";
+        } else {
+            return DisplayFormatters.formatDecimal(ratio, 3);
+        }
+    }
 }

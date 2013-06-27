@@ -240,52 +240,7 @@ final class AzureusBittorrentDownload implements BittorrentDownload {
     }
 
     public String getSeedToPeerRatio() {
-        float ratio = -1;
-
-        DownloadManager dm = downloadManager.getDM();
-        if (dm != null) {
-            TRTrackerScraperResponse response = dm.getTrackerScrapeResponse();
-            int seeds;
-            int peers;
-
-            if (response != null && response.isValid()) {
-                seeds = Math.max(dm.getNbSeeds(), response.getSeeds());
-
-                int trackerPeerCount = response.getPeers();
-                peers = dm.getNbPeers();
-                if (peers == 0 || trackerPeerCount > peers) {
-                    if (trackerPeerCount <= 0) {
-                        peers = dm.getActivationCount();
-                    } else {
-                        peers = trackerPeerCount;
-                    }
-                }
-            } else {
-                seeds = dm.getNbSeeds();
-                peers = dm.getNbPeers();
-            }
-
-            if (peers < 0 || seeds < 0) {
-                ratio = 0;
-            } else {
-                if (peers == 0) {
-                    if (seeds == 0)
-                        ratio = 0;
-                    else
-                        ratio = Float.POSITIVE_INFINITY;
-                } else {
-                    ratio = (float) seeds / peers;
-                }
-            }
-        }
-
-        if (ratio == -1) {
-            return "";
-        } else if (ratio == 0) {
-            return "??";
-        } else {
-            return DisplayFormatters.formatDecimal(ratio, 3);
-        }
+        return VuzeFormatter.formatSeedToPeerRatio(downloadManager.getSeeds(), downloadManager.getPeers());
     }
 
     public String getShareRatio() {
