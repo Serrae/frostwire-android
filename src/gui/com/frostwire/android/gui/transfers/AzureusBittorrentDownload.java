@@ -29,10 +29,10 @@ import org.gudy.azureus2.core3.disk.DiskManagerFileInfo;
 import org.gudy.azureus2.core3.download.DownloadManager;
 import org.gudy.azureus2.core3.torrent.TOTorrentException;
 import org.gudy.azureus2.core3.tracker.client.TRTrackerScraperResponse;
-import org.gudy.azureus2.core3.util.Constants;
 import org.gudy.azureus2.core3.util.DisplayFormatters;
 
 import com.frostwire.vuze.VuzeDownloadManager;
+import com.frostwire.vuze.VuzeFormatter;
 
 /**
  * @author gubatron
@@ -289,26 +289,7 @@ final class AzureusBittorrentDownload implements BittorrentDownload {
     }
 
     public String getShareRatio() {
-        DownloadManager dm = downloadManager.getDM();
-
-        int sr = (dm == null) ? 0 : dm.getStats().getShareRatio();
-
-        if (sr == Integer.MAX_VALUE) {
-            sr = Integer.MAX_VALUE - 1;
-        }
-        if (sr == -1) {
-            sr = Integer.MAX_VALUE;
-        }
-
-        String shareRatio = "";
-
-        if (sr == Integer.MAX_VALUE) {
-            shareRatio = Constants.INFINITY_STRING;
-        } else {
-            shareRatio = DisplayFormatters.formatDecimal((double) sr / 1000, 3);
-        }
-
-        return shareRatio;
+        return VuzeFormatter.formatShareRatio(downloadManager.getShareRatio());
     }
 
     @Override

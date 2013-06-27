@@ -155,6 +155,10 @@ public final class VuzeDownloadManager {
         return dm.getStats().getETA();
     }
 
+    public int getShareRatio() {
+        return dm.getStats().getShareRatio();
+    }
+
     public void pause() {
         if (isPausable()) {
             ManagerUtils.stop(dm);
