@@ -196,6 +196,20 @@ public final class VuzeDownloadManager {
         return seeds;
     }
 
+    public int getConnectedSeeds() {
+        return dm.getNbSeeds();
+    }
+
+    public boolean hasStarted() {
+        int state = dm.getState();
+        return state == DownloadManager.STATE_SEEDING || state == DownloadManager.STATE_DOWNLOADING;
+    }
+
+    public boolean hasScrape() {
+        TRTrackerScraperResponse response = dm.getTrackerScrapeResponse();
+        return response != null && response.isValid();
+    }
+
     public void pause() {
         if (isPausable()) {
             ManagerUtils.stop(dm);

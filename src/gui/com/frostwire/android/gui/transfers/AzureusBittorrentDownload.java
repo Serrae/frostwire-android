@@ -190,49 +190,11 @@ final class AzureusBittorrentDownload implements BittorrentDownload {
     }
 
     public String getSeeds() {
-        long lTotalSeeds = -1;
-        //long lTotalPeers = 0;
-        long lConnectedSeeds = 0;
-        DownloadManager dm = downloadManager.getDM();
-        if (dm != null) {
-            lConnectedSeeds = dm.getNbSeeds();
-
-            if (lTotalSeeds == -1) {
-                TRTrackerScraperResponse response = dm.getTrackerScrapeResponse();
-                if (response != null && response.isValid()) {
-                    lTotalSeeds = response.getSeeds();
-                    //lTotalPeers = response.getPeers();
-                }
-            }
-        }
-
-        //        // Allows for 2097151 of each type (connected seeds, seeds, peers)
-        //        long value = (lConnectedSeeds << 42);
-        //        if (lTotalSeeds > 0)
-        //            value += (lTotalSeeds << 21);
-        //        if (lTotalPeers > 0)
-        //            value += lTotalPeers;
-
-        //boolean bCompleteTorrent = dm == null ? false : dm.getAssumedComplete();
-
-        int state = dm.getState();
-        boolean started = (state == DownloadManager.STATE_SEEDING || state == DownloadManager.STATE_DOWNLOADING);
-        boolean hasScrape = lTotalSeeds >= 0;
-        String tmp;
-
-        if (started) {
-            tmp = hasScrape ? (lConnectedSeeds > lTotalSeeds ? "%1" : "%1 " + "/" + " %2") : "%1";
-        } else {
-            tmp = hasScrape ? "%2" : "";
-        }
-        tmp = tmp.replaceAll("%1", String.valueOf(lConnectedSeeds));
-        String param2 = "?";
-        if (lTotalSeeds != -1) {
-            param2 = String.valueOf(lTotalSeeds);
-        }
-        tmp = tmp.replaceAll("%2", param2);
-
-        return tmp;
+        int seeds = downloadManager.getSeeds();
+        int connectedSeeds = downloadManager.getConnectedSeeds();
+        boolean hasStarted = downloadManager.hasStarted();
+        boolean hasScrape = downloadManager.hasScrape();
+        return VuzeFormatter.formatSeeds(seeds, connectedSeeds, hasStarted, hasScrape);
     }
 
     public String getHash() {

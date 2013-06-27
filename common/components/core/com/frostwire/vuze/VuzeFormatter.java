@@ -74,4 +74,22 @@ public final class VuzeFormatter {
             return DisplayFormatters.formatDecimal(ratio, 3);
         }
     }
+
+    public static String formatSeeds(int seeds, int connectedSeeds, boolean hasStarted, boolean hasScrape) {
+        String tmp;
+
+        if (hasStarted) {
+            tmp = hasScrape ? (connectedSeeds > seeds ? "%1" : "%1 " + "/" + " %2") : "%1";
+        } else {
+            tmp = hasScrape ? "%2" : "";
+        }
+        tmp = tmp.replaceAll("%1", String.valueOf(connectedSeeds));
+        String param2 = "?";
+        if (seeds != -1) {
+            param2 = String.valueOf(seeds);
+        }
+        tmp = tmp.replaceAll("%2", param2);
+
+        return tmp;
+    }
 }
