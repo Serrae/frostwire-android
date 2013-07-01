@@ -27,6 +27,7 @@ import org.gudy.azureus2.core3.download.DownloadManager;
 import org.gudy.azureus2.core3.download.DownloadManagerInitialisationAdapter;
 import org.gudy.azureus2.core3.download.impl.DownloadManagerAdapter;
 import org.gudy.azureus2.core3.global.GlobalManager;
+import org.gudy.azureus2.core3.util.HashWrapper;
 
 /**
  * @author gubatron
@@ -38,18 +39,26 @@ public final class VuzeDownloadFactory {
     private VuzeDownloadFactory() {
     }
 
-    public static VuzeDownloadManager create(String torrentFile, final Set<String> fileSelection, String saveDir, VuzeDownloadListener listener) {
+    public static VuzeDownloadManager create(String torrentFile, byte[] hash, final Set<String> fileSelection, String saveDir, VuzeDownloadListener listener) {
         GlobalManager gm = VuzeManager.getInstance().getGlobalManager();
         DownloadManager dm = null;
 
-        if (fileSelection == null || fileSelection.isEmpty()) {
-            dm = gm.addDownloadManager(torrentFile, null, saveDir, DownloadManager.STATE_WAITING, true, false, null);
+        if (hash != null) {
+            dm = gm.getDownloadManager(new HashWrapper(hash));
+        }
+
+        if (dm == null) { // new download
+            if (fileSelection == null || fileSelection.isEmpty()) {
+                dm = gm.addDownloadManager(torrentFile, null, saveDir, DownloadManager.STATE_WAITING, true, false, null);
+            } else {
+                dm = gm.addDownloadManager(torrentFile, null, saveDir, null, DownloadManager.STATE_WAITING, true, false, new DownloadManagerInitialisationAdapter() {
+                    public void initialised(DownloadManager dm) {
+                        setupPartialSelection(dm, fileSelection);
+                    }
+                });
+            }
         } else {
-            dm = gm.addDownloadManager(torrentFile, null, saveDir, null, DownloadManager.STATE_WAITING, true, false, new DownloadManagerInitialisationAdapter() {
-                public void initialised(DownloadManager dm) {
-                    setupPartialSelection(dm, fileSelection);
-                }
-            });
+
         }
 
         VuzeDownloadManager vdm = new VuzeDownloadManager(dm);
@@ -87,14 +96,19 @@ public final class VuzeDownloadFactory {
                 if (state == DownloadManager.STATE_READY) {
                     manager.startDownload();
                 }
-            }
 
-            @Override
-            public void downloadComplete(DownloadManager manager) {
-                if (finished.compareAndSet(false, true)) {
+                onStateChanged(state);
+
+                if (manager.getAssumedComplete() && finished.compareAndSet(false, true)) {
                     if (listener != null) {
                         listener.downloadComplete(vdm);
                     }
+                }
+            }
+
+            private void onStateChanged(int state) {
+                if (listener != null) {
+                    listener.stateChanged(vdm, state);
                 }
             }
         });

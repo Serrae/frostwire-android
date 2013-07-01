@@ -29,8 +29,8 @@ import android.test.suitebuilder.annotation.LargeTest;
 import com.frostwire.android.gui.util.SystemUtils;
 import com.frostwire.android.tests.TestUtils;
 import com.frostwire.torrent.TOTorrent;
+import com.frostwire.vuze.VuzeDownloadAdapter;
 import com.frostwire.vuze.VuzeDownloadFactory;
-import com.frostwire.vuze.VuzeDownloadListener;
 import com.frostwire.vuze.VuzeDownloadManager;
 
 /**
@@ -39,7 +39,7 @@ import com.frostwire.vuze.VuzeDownloadManager;
  * @author aldenml
  *
  */
-public class SimpleDownloadTest extends AbstractTorrentTest {
+public final class SimpleDownloadTest extends AbstractTorrentTest {
 
     @LargeTest
     public void testDownload1() throws Exception {
@@ -54,7 +54,12 @@ public class SimpleDownloadTest extends AbstractTorrentTest {
 
         final CountDownLatch downloadFinished = new CountDownLatch(1);
 
-        VuzeDownloadFactory.create(f.getAbsolutePath(), null, saveDir.getAbsolutePath(), new VuzeDownloadListener() {
+        VuzeDownloadFactory.create(f.getAbsolutePath(), t.getHash(), null, saveDir.getAbsolutePath(), new VuzeDownloadAdapter() {
+
+            @Override
+            public void stateChanged(VuzeDownloadManager dm, int state) {
+                System.out.println("DM - State=" + state);
+            }
 
             @Override
             public void downloadComplete(VuzeDownloadManager dm) {
@@ -62,6 +67,6 @@ public class SimpleDownloadTest extends AbstractTorrentTest {
             }
         });
 
-        TestUtils.await(downloadFinished, 30, TimeUnit.MINUTES);
+        TestUtils.await(downloadFinished, 10, TimeUnit.MINUTES);
     }
 }

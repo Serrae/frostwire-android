@@ -33,7 +33,7 @@ import com.frostwire.vuze.VuzeManager;
  * @author aldenml
  *
  */
-public class AbstractTorrentTest extends AbstractApplicationTest {
+public abstract class AbstractTorrentTest extends AbstractApplicationTest {
 
     @Override
     protected void setUp() throws Exception {

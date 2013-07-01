@@ -21,6 +21,7 @@ import android.test.ApplicationTestCase;
 import android.test.mock.MockApplication;
 
 import com.frostwire.android.core.ConfigurationManager;
+import com.frostwire.android.gui.MainApplication;
 
 /**
  * 
@@ -28,13 +29,13 @@ import com.frostwire.android.core.ConfigurationManager;
  * @author aldenml
  *
  */
-public class AbstractApplicationTest extends ApplicationTestCase<MockApplication> {
+public abstract class AbstractApplicationTest extends ApplicationTestCase<MainApplication> {
 
     public AbstractApplicationTest() {
-        this(MockApplication.class);
+        this(MainApplication.class);
     }
 
-    public AbstractApplicationTest(Class<MockApplication> applicationClass) {
+    public AbstractApplicationTest(Class<MainApplication> applicationClass) {
         super(applicationClass);
     }
 
@@ -42,6 +43,7 @@ public class AbstractApplicationTest extends ApplicationTestCase<MockApplication
     protected void setUp() throws Exception {
         super.setUp();
 
-        ConfigurationManager.create(getApplication());
+        createApplication();
+        //ConfigurationManager.create(getApplication());
     }
 }

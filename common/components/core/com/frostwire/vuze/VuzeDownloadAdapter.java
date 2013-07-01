@@ -18,21 +18,18 @@
 
 package com.frostwire.vuze;
 
-
 /**
  * @author gubatron
  * @author aldenml
  *
  */
-public interface VuzeDownloadListener {
+public class VuzeDownloadAdapter implements VuzeDownloadListener {
 
-    /**
-     * Use it only for advance features.
-     * 
-     * @param dm
-     * @param state
-     */
-    public void stateChanged(VuzeDownloadManager dm, int state);
+    @Override
+    public void stateChanged(VuzeDownloadManager dm, int state) {
+    }
 
-    public void downloadComplete(VuzeDownloadManager dm);
+    @Override
+    public void downloadComplete(VuzeDownloadManager dm) {
+    }
 }
