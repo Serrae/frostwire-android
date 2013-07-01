@@ -43,6 +43,13 @@ import com.frostwire.concurrent.Futures;
  * @author aldenml
  *
  */
+/*
+ * As a general not in the inner implementation:
+ * 
+ * I'm not using AzureusCoreRunningListener in general here because
+ * I want to avoid the thread context switch associated to
+ * the use of the executor thread pool.
+ */
 final class VuzeEngine {
 
     private static final AsyncExecutor executor = AsyncExecutors.newSingleThreadExecutor();
@@ -63,6 +70,24 @@ final class VuzeEngine {
         return core;
     }
 
+    public AsyncFuture<AzureusCore> getCore2() {
+        AsyncFuture<AzureusCore> future;
+
+        if (core.isStarted()) {
+            future = Futures.successful(core);
+        } else {
+            future = executor.submit(new Callable<AzureusCore>() {
+                @Override
+                public AzureusCore call() throws Exception {
+                    coreStarted.await();
+                    return core;
+                }
+            });
+        }
+
+        return future;
+    }
+
     public GlobalManager getGlobalManager() {
         return core.getGlobalManager();
     }
@@ -80,17 +105,21 @@ final class VuzeEngine {
     }
 
     public AsyncFuture<List<DownloadManager>> getDownloadManagers() {
+        AsyncFuture<List<DownloadManager>> future;
+
         if (core.isStarted()) {
-            return Futures.successful(getDownloadManagersSupport());
+            future = Futures.successful(getDownloadManagersSupport());
+        } else {
+            future = executor.submit(new Callable<List<DownloadManager>>() {
+                @Override
+                public List<DownloadManager> call() throws Exception {
+                    coreStarted.await();
+                    return getDownloadManagersSupport();
+                }
+            });
         }
 
-        return executor.submit(new Callable<List<DownloadManager>>() {
-            @Override
-            public List<DownloadManager> call() throws Exception {
-                coreStarted.await();
-                return getDownloadManagersSupport();
-            }
-        });
+        return future;
     }
 
     private void initConfiguration() {

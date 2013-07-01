@@ -17,7 +17,21 @@
 
 package com.frostwire.android.tests.vuze;
 
-import junit.framework.TestCase;
+import java.io.File;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
+
+import android.test.suitebuilder.annotation.LargeTest;
+
+import com.frostwire.android.gui.util.SystemUtils;
+import com.frostwire.android.tests.TestUtils;
+import com.frostwire.torrent.TOTorrent;
+import com.frostwire.vuze.VuzeDownloadFactory;
+import com.frostwire.vuze.VuzeDownloadListener;
+import com.frostwire.vuze.VuzeDownloadManager;
 
 /**
  * 
@@ -25,6 +39,29 @@ import junit.framework.TestCase;
  * @author aldenml
  *
  */
-public class SimpleDownloadTest extends TestCase {
+public class SimpleDownloadTest extends AbstractTorrentTest {
 
+    @LargeTest
+    public void testDownload1() throws Exception {
+        String url = "http://dl.frostwire.com/torrents/audio/music/Kings_of_the_City__The_FrostWire_EP__FROSTCLICK_MP3_256K_2013_JUNE_11.torrent";
+        File f = new File(SystemUtils.getTorrentsDirectory(), FilenameUtils.getName(url));
+        TOTorrent t = TestUtils.downloadTorrent(url);
+
+        t.serialiseToBEncodedFile(f);
+
+        File saveDir = new File(SystemUtils.getTorrentDataDirectory(), "tests");
+        FileUtils.deleteDirectory(saveDir);
+
+        final CountDownLatch downloadFinished = new CountDownLatch(1);
+
+        VuzeDownloadFactory.create(f.getAbsolutePath(), null, saveDir.getAbsolutePath(), new VuzeDownloadListener() {
+
+            @Override
+            public void downloadComplete(VuzeDownloadManager dm) {
+                downloadFinished.countDown();
+            }
+        });
+
+        TestUtils.await(downloadFinished, 30, TimeUnit.MINUTES);
+    }
 }

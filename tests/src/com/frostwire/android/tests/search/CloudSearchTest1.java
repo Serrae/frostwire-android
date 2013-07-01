@@ -89,7 +89,7 @@ public class CloudSearchTest1 extends TestCase {
         manager.registerListener(l);
         manager.perform(performer);
 
-        assertTrue("Unable to get results in less than 10 seconds", TestUtils.await(signal, 10, TimeUnit.SECONDS));
+        TestUtils.await(signal, 10, TimeUnit.SECONDS);
 
         assertTrue("Did not finish or took too much time", manager.shutdown(5, TimeUnit.SECONDS));
 

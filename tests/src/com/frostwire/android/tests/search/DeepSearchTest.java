@@ -84,7 +84,6 @@ public class DeepSearchTest extends ApplicationTestCase<MockApplication> {
         deepSearch(new ArchiveorgSearchPerformer(0, "Big Buck Bunny", 5000));
     }
 
-    
     private void deepSearch(SearchPerformer performer) {
         final CountDownLatch signal = new CountDownLatch(1);
 
@@ -102,7 +101,7 @@ public class DeepSearchTest extends ApplicationTestCase<MockApplication> {
         manager.registerListener(l);
         manager.perform(performer);
 
-        assertTrue("Unable to get crawled results in less than 10 seconds", TestUtils.await(signal, 10, TimeUnit.SECONDS));
+        TestUtils.await(signal, 10, TimeUnit.SECONDS);
 
         assertTrue("Did not finish or took too much time", manager.shutdown(1, TimeUnit.MINUTES));
 

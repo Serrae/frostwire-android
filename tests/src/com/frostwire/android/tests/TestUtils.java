@@ -17,9 +17,17 @@
 
 package com.frostwire.android.tests;
 
+import java.io.ByteArrayInputStream;
 import java.lang.reflect.Method;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+
+import com.frostwire.torrent.TOTorrent;
+import com.frostwire.torrent.TOTorrentException;
+import com.frostwire.torrent.TorrentUtils;
+import com.frostwire.util.HttpClient;
+import com.frostwire.util.HttpClientFactory;
+import com.frostwire.util.UserAgentGenerator;
 
 import android.os.Debug;
 
@@ -34,11 +42,13 @@ public final class TestUtils {
     private TestUtils() {
     }
 
-    public static boolean await(CountDownLatch signal, long timeout, TimeUnit unit) {
+    public static void await(CountDownLatch signal, long timeout, TimeUnit unit) {
         try {
-            return signal.await(timeout, unit);
+            if (!signal.await(timeout, unit)) {
+                throw new AwaitException(timeout, unit);
+            }
         } catch (InterruptedException e) {
-            return false;
+            throw new AwaitException(e);
         }
     }
 
@@ -49,6 +59,18 @@ public final class TestUtils {
             return (Long) m.invoke(null);
         } catch (Throwable e) {
             throw new RuntimeException("Unable to run test on this device", e);
+        }
+    }
+
+    public static TOTorrent downloadTorrent(String url) {
+        HttpClient c = HttpClientFactory.newDefaultInstance();
+        byte[] data = c.getBytes(url, 10000, UserAgentGenerator.getUserAgent(), null);
+        ByteArrayInputStream is = new ByteArrayInputStream(data);
+
+        try {
+            return TorrentUtils.readFromBEncodedInputStream(is);
+        } catch (TOTorrentException e) {
+            throw new RuntimeException(e);
         }
     }
 }

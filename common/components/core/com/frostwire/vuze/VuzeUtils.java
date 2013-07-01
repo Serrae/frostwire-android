@@ -19,6 +19,7 @@
 package com.frostwire.vuze;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -27,6 +28,8 @@ import java.util.concurrent.TimeUnit;
 import org.gudy.azureus2.core3.disk.DiskManagerFileInfo;
 import org.gudy.azureus2.core3.disk.DiskManagerFileInfoSet;
 import org.gudy.azureus2.core3.download.DownloadManager;
+import org.gudy.azureus2.core3.torrent.TOTorrent;
+import org.gudy.azureus2.core3.torrent.TOTorrentFactory;
 
 import com.frostwire.util.FileUtils;
 
@@ -44,6 +47,14 @@ public final class VuzeUtils {
         Set<File> set = getIncompleteFiles();
         set.addAll(getSkipedFiles());
         return set;
+    }
+
+    public static TOTorrent convert(com.frostwire.torrent.TOTorrent t) throws IOException {
+        try {
+            return TOTorrentFactory.deserialiseFromMap(t.serialiseToMap());
+        } catch (Throwable e) {
+            throw new IOException(e);
+        }
     }
 
     static Set<File> getSkippedFiles(DownloadManager dm) {
