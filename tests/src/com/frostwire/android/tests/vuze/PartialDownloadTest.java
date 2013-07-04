@@ -18,6 +18,8 @@
 package com.frostwire.android.tests.vuze;
 
 import java.io.File;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -39,10 +41,10 @@ import com.frostwire.vuze.VuzeDownloadManager;
  * @author aldenml
  *
  */
-public final class SimpleDownloadTest extends AbstractTorrentTest {
+public final class PartialDownloadTest extends AbstractTorrentTest {
 
     @LargeTest
-    public void testDownload1() throws Exception {
+    public void testDownloadFirstFile() throws Exception {
         String url = "http://dl.frostwire.com/torrents/audio/music/Kings_of_the_City__The_FrostWire_EP__FROSTCLICK_MP3_256K_2013_JUNE_11.torrent";
         File f = new File(SystemUtils.getTorrentsDirectory(), FilenameUtils.getName(url));
         TOTorrent t = TestUtils.downloadTorrent(url);
@@ -52,9 +54,15 @@ public final class SimpleDownloadTest extends AbstractTorrentTest {
         File saveDir = new File(SystemUtils.getTorrentDataDirectory(), "tests");
         FileUtils.deleteDirectory(saveDir);
 
+        String firstRelativePath = t.getFiles()[0].getRelativePath();
+        File endFile = new File(new File(saveDir, FilenameUtils.getBaseName(url)), firstRelativePath);
+
+        Set<String> fileSelection = new HashSet<String>();
+        fileSelection.add(firstRelativePath);
+
         final CountDownLatch downloadFinished = new CountDownLatch(1);
 
-        VuzeDownloadFactory.create(f.getAbsolutePath(), t.getHash(), null, saveDir.getAbsolutePath(), new VuzeDownloadAdapter() {
+        VuzeDownloadFactory.create(f.getAbsolutePath(), t.getHash(), fileSelection, saveDir.getAbsolutePath(), new VuzeDownloadAdapter() {
 
             @Override
             public void stateChanged(VuzeDownloadManager dm, int state) {
@@ -68,5 +76,7 @@ public final class SimpleDownloadTest extends AbstractTorrentTest {
         });
 
         TestUtils.await(downloadFinished, 5, TimeUnit.MINUTES);
+
+        assertTrue(firstRelativePath + " does not exist", endFile.exists());
     }
 }

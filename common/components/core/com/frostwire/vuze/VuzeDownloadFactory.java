@@ -42,6 +42,7 @@ public final class VuzeDownloadFactory {
     public static VuzeDownloadManager create(String torrentFile, byte[] hash, final Set<String> fileSelection, String saveDir, VuzeDownloadListener listener) {
         GlobalManager gm = VuzeManager.getInstance().getGlobalManager();
         DownloadManager dm = null;
+        VuzeDownloadManager vdm = null;
 
         if (hash != null) {
             dm = gm.getDownloadManager(new HashWrapper(hash));
@@ -57,13 +58,20 @@ public final class VuzeDownloadFactory {
                     }
                 });
             }
-        } else {
 
+            vdm = new VuzeDownloadManager(dm);
+            setup(dm, vdm, listener);
+
+        } else { // download already there
+            if (fileSelection == null || fileSelection.isEmpty()) {
+//                if (isPartial()) {
+//                    
+//                }
+            } else {
+                
+            }
+            vdm = new VuzeDownloadManager(dm);
         }
-
-        VuzeDownloadManager vdm = new VuzeDownloadManager(dm);
-
-        setup(dm, vdm, listener);
 
         return vdm;
     }

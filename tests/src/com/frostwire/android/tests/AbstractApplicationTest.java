@@ -18,9 +18,7 @@
 package com.frostwire.android.tests;
 
 import android.test.ApplicationTestCase;
-import android.test.mock.MockApplication;
 
-import com.frostwire.android.core.ConfigurationManager;
 import com.frostwire.android.gui.MainApplication;
 
 /**
@@ -44,6 +42,5 @@ public abstract class AbstractApplicationTest extends ApplicationTestCase<MainAp
         super.setUp();
 
         createApplication();
-        //ConfigurationManager.create(getApplication());
     }
 }
