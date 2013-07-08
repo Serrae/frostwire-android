@@ -521,11 +521,10 @@ class TOTorrentImpl implements TOTorrent {
 
     public HashWrapper getHashWrapper() throws TOTorrentException {
         if (torrent_hash_wrapper == null) {
-
             getHash();
         }
 
-        return (torrent_hash_wrapper);
+        return torrent_hash_wrapper;
     }
 
     public boolean hasSameHashAs(TOTorrent other) {

@@ -62,7 +62,7 @@ public final class PartialDownloadTest extends AbstractTorrentTest {
 
         final CountDownLatch downloadFinished = new CountDownLatch(1);
 
-        VuzeDownloadFactory.create(f.getAbsolutePath(), t.getHash(), fileSelection, saveDir.getAbsolutePath(), new VuzeDownloadAdapter() {
+        VuzeDownloadFactory.create(f.getAbsolutePath(), fileSelection, saveDir.getAbsolutePath(), new VuzeDownloadAdapter() {
 
             @Override
             public void stateChanged(VuzeDownloadManager dm, int state) {

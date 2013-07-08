@@ -158,10 +158,7 @@ public interface TOTorrent {
      * @return
      * @throws TOTorrentException
      */
-
-    public HashWrapper getHashWrapper()
-
-    throws TOTorrentException;
+    public HashWrapper getHashWrapper() throws TOTorrentException;
 
     /**
      * Only supported for decentralised torrents, allows an alternative hash to be used

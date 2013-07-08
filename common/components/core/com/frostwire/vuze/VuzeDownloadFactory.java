@@ -19,15 +19,22 @@
 package com.frostwire.vuze;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import org.apache.commons.io.IOUtils;
 import org.gudy.azureus2.core3.disk.DiskManagerFileInfo;
 import org.gudy.azureus2.core3.download.DownloadManager;
 import org.gudy.azureus2.core3.download.DownloadManagerInitialisationAdapter;
 import org.gudy.azureus2.core3.download.impl.DownloadManagerAdapter;
 import org.gudy.azureus2.core3.global.GlobalManager;
 import org.gudy.azureus2.core3.util.HashWrapper;
+
+import com.frostwire.torrent.TOTorrent;
+import com.frostwire.torrent.TorrentUtils;
 
 /**
  * @author gubatron
@@ -39,20 +46,18 @@ public final class VuzeDownloadFactory {
     private VuzeDownloadFactory() {
     }
 
-    public static VuzeDownloadManager create(String torrentFile, byte[] hash, final Set<String> fileSelection, String saveDir, VuzeDownloadListener listener) {
+    public static VuzeDownloadManager create(String torrent, final Set<String> fileSelection, String saveDir, VuzeDownloadListener listener) throws IOException {
         GlobalManager gm = VuzeManager.getInstance().getGlobalManager();
         DownloadManager dm = null;
         VuzeDownloadManager vdm = null;
 
-        if (hash != null) {
-            dm = gm.getDownloadManager(new HashWrapper(hash));
-        }
+        dm = findDM(gm, torrent);
 
         if (dm == null) { // new download
             if (fileSelection == null || fileSelection.isEmpty()) {
-                dm = gm.addDownloadManager(torrentFile, null, saveDir, DownloadManager.STATE_WAITING, true, false, null);
+                dm = gm.addDownloadManager(torrent, null, saveDir, DownloadManager.STATE_WAITING, true, false, null);
             } else {
-                dm = gm.addDownloadManager(torrentFile, null, saveDir, null, DownloadManager.STATE_WAITING, true, false, new DownloadManagerInitialisationAdapter() {
+                dm = gm.addDownloadManager(torrent, null, saveDir, null, DownloadManager.STATE_WAITING, true, false, new DownloadManagerInitialisationAdapter() {
                     public void initialised(DownloadManager dm) {
                         setupPartialSelection(dm, fileSelection);
                     }
@@ -64,16 +69,32 @@ public final class VuzeDownloadFactory {
 
         } else { // download already there
             if (fileSelection == null || fileSelection.isEmpty()) {
-//                if (isPartial()) {
-//                    
-//                }
+                //                if (isPartial()) {
+                //                    
+                //                }
             } else {
-                
+
             }
             vdm = new VuzeDownloadManager(dm);
         }
 
         return vdm;
+    }
+
+    private static DownloadManager findDM(GlobalManager gm, String torrent) throws IOException {
+        DownloadManager dm;
+        InputStream is = null;
+
+        try {
+            is = new FileInputStream(torrent);
+            // using FrostWire fork api for actual reading
+            TOTorrent t = TorrentUtils.readFromBEncodedInputStream(is);
+            dm = gm.getDownloadManager(new HashWrapper(t.getHash()));
+        } finally {
+            IOUtils.closeQuietly(is);
+        }
+
+        return dm;
     }
 
     private static void setupPartialSelection(DownloadManager dm, Set<String> fileSelection) {
