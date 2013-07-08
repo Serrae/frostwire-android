@@ -22,6 +22,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -54,7 +55,7 @@ public final class VuzeDownloadFactory {
         dm = findDM(gm, torrent);
 
         if (dm == null) { // new download
-            if (fileSelection == null || fileSelection.isEmpty()) {
+            if (fileSelection == null || fileSelection.isEmpty()) { // no need of setting up partial selection
                 dm = gm.addDownloadManager(torrent, null, saveDir, DownloadManager.STATE_WAITING, true, false, null);
             } else {
                 dm = gm.addDownloadManager(torrent, null, saveDir, null, DownloadManager.STATE_WAITING, true, false, new DownloadManagerInitialisationAdapter() {
@@ -69,16 +70,20 @@ public final class VuzeDownloadFactory {
 
         } else { // download already there
             if (fileSelection == null || fileSelection.isEmpty()) {
-                //                if (isPartial()) {
-                //                    
-                //                }
+                setupPartialSelection(dm, fileSelection);
             } else {
-
+                setupPartialSelection(dm, union(fileSelection, VuzeUtils.getSkippedPaths(dm)));
             }
             vdm = new VuzeDownloadManager(dm);
         }
 
         return vdm;
+    }
+
+    private static Set<String> union(Set<String> s1, Set<String> s2) {
+        Set<String> s = new HashSet<String>(s1); // I don't want to modify original sets
+        s.addAll(s2);
+        return s;
     }
 
     private static DownloadManager findDM(GlobalManager gm, String torrent) throws IOException {
@@ -103,13 +108,18 @@ public final class VuzeDownloadFactory {
         try {
             dm.getDownloadState().suppressStateSave(true);
 
-            for (DiskManagerFileInfo fileInfo : fileInfos) {
-                File f = fileInfo.getFile(true);
-                if (!fileSelection.contains(f)) {
-                    fileInfo.setSkipped(true);
+            if (fileSelection == null || fileSelection.isEmpty()) {
+                for (DiskManagerFileInfo fileInfo : fileInfos) {
+                    fileInfo.setSkipped(false);
+                }
+            } else {
+                for (DiskManagerFileInfo fileInfo : fileInfos) {
+                    File f = fileInfo.getFile(true);
+                    if (!fileSelection.contains(f)) {
+                        fileInfo.setSkipped(true);
+                    }
                 }
             }
-
         } finally {
             dm.getDownloadState().suppressStateSave(false);
         }

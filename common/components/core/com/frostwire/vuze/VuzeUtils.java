@@ -87,6 +87,17 @@ public final class VuzeUtils {
         return set;
     }
 
+    static Set<String> getSkippedPaths(DownloadManager dm) {
+        Set<String> set = new HashSet<String>();
+        DiskManagerFileInfoSet infoSet = dm.getDiskManagerFileInfoSet();
+        for (DiskManagerFileInfo fileInfo : infoSet.getFiles()) {
+            if (fileInfo.isSkipped()) {
+                set.add(fileInfo.getFile(false).getPath());
+            }
+        }
+        return set;
+    }
+
     /**
      * Deletes incomplete and skipped files.
      */
