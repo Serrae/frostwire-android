@@ -51,6 +51,7 @@ public final class VuzeDownloadFactory {
         GlobalManager gm = VuzeManager.getInstance().getGlobalManager();
         DownloadManager dm = null;
         VuzeDownloadManager vdm = null;
+        boolean initialize = false;
 
         dm = findDM(gm, torrent);
 
@@ -65,8 +66,7 @@ public final class VuzeDownloadFactory {
                 });
             }
 
-            vdm = new VuzeDownloadManager(dm);
-            setup(dm, vdm, listener);
+            initialize = true;
 
         } else { // download already there
             if (fileSelection == null || fileSelection.isEmpty()) {
@@ -74,8 +74,12 @@ public final class VuzeDownloadFactory {
             } else {
                 setupPartialSelection(dm, union(fileSelection, VuzeUtils.getSkippedPaths(dm)));
             }
-            vdm = new VuzeDownloadManager(dm);
+
+            initialize = false;
         }
+
+        vdm = new VuzeDownloadManager(dm);
+        setup(dm, vdm, listener, initialize);
 
         return vdm;
     }
@@ -125,7 +129,7 @@ public final class VuzeDownloadFactory {
         }
     }
 
-    private static void setup(DownloadManager dm, final VuzeDownloadManager vdm, final VuzeDownloadListener listener) {
+    private static void setup(DownloadManager dm, final VuzeDownloadManager vdm, final VuzeDownloadListener listener, boolean initialize) {
         dm.addListener(new DownloadManagerAdapter() {
 
             private AtomicBoolean finished = new AtomicBoolean(false);
@@ -152,7 +156,7 @@ public final class VuzeDownloadFactory {
             }
         });
 
-        if (dm.getState() != DownloadManager.STATE_STOPPED) {
+        if (initialize && dm.getState() != DownloadManager.STATE_STOPPED) {
             dm.initialize();
         }
     }
