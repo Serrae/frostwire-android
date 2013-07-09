@@ -41,6 +41,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 
 import org.gudy.azureus2.core3.disk.DiskManagerFileInfo;
@@ -50,6 +51,9 @@ import org.gudy.azureus2.core3.torrent.TOTorrent;
 import org.gudy.azureus2.core3.torrent.TOTorrentFactory;
 import org.gudy.azureus2.core3.util.FileUtil;
 
+import com.frostwire.concurrent.AsyncExecutor;
+import com.frostwire.concurrent.AsyncExecutors;
+import com.frostwire.concurrent.AsyncFuture;
 import com.frostwire.util.FileUtils;
 
 /**
@@ -58,6 +62,8 @@ import com.frostwire.util.FileUtils;
  *
  */
 public final class VuzeUtils {
+
+    private static final AsyncExecutor executor = AsyncExecutors.newSingleThreadExecutor();
 
     private VuzeUtils() {
     }
@@ -118,6 +124,10 @@ public final class VuzeUtils {
         if (paused) {
             dm.resume();
         }
+    }
+
+    static <V> AsyncFuture<V> submit(Callable<V> task) {
+        return executor.submit(task);
     }
 
     private static Set<File> getSkipedFiles() {

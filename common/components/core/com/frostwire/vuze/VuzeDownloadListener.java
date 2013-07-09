@@ -18,7 +18,6 @@
 
 package com.frostwire.vuze;
 
-
 /**
  * @author gubatron
  * @author aldenml

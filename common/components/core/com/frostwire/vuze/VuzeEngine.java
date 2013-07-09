@@ -33,8 +33,6 @@ import com.aelitis.azureus.core.AzureusCore;
 import com.aelitis.azureus.core.AzureusCoreFactory;
 import com.aelitis.azureus.core.AzureusCoreLifecycleAdapter;
 import com.frostwire.android.gui.util.SystemUtils;
-import com.frostwire.concurrent.AsyncExecutor;
-import com.frostwire.concurrent.AsyncExecutors;
 import com.frostwire.concurrent.AsyncFuture;
 import com.frostwire.concurrent.Futures;
 
@@ -51,8 +49,6 @@ import com.frostwire.concurrent.Futures;
  * the use of the executor thread pool.
  */
 final class VuzeEngine {
-
-    private static final AsyncExecutor executor = AsyncExecutors.newSingleThreadExecutor();
 
     private final AzureusCore core;
     private final CountDownLatch coreStarted;
@@ -76,7 +72,7 @@ final class VuzeEngine {
         if (core.isStarted()) {
             future = Futures.successful(core);
         } else {
-            future = executor.submit(new Callable<AzureusCore>() {
+            future = VuzeUtils.submit(new Callable<AzureusCore>() {
                 @Override
                 public AzureusCore call() throws Exception {
                     coreStarted.await();
@@ -110,7 +106,7 @@ final class VuzeEngine {
         if (core.isStarted()) {
             future = Futures.successful(getDownloadManagersSupport());
         } else {
-            future = executor.submit(new Callable<List<DownloadManager>>() {
+            future = VuzeUtils.submit(new Callable<List<DownloadManager>>() {
                 @Override
                 public List<DownloadManager> call() throws Exception {
                     coreStarted.await();
