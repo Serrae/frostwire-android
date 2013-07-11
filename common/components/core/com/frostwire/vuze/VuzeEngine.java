@@ -39,13 +39,21 @@ public abstract class VuzeEngine {
         initConfiguration();
 
         this.core = AzureusCoreFactory.create();
+        this.core.start();
+    }
+
+    public void pause() {
+    }
+
+    public void resume() {
+
     }
 
     protected abstract File getVuzePath();
 
     protected abstract File getTorrentsPath();
 
-    public void initConfiguration() {
+    private void initConfiguration() {
         File azureusPath = getVuzePath();
 
         System.setProperty("azureus.config.path", azureusPath.getAbsolutePath());
