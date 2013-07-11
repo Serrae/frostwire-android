@@ -49,6 +49,7 @@ import com.aelitis.azureus.core.AzureusCoreFactory;
 import com.aelitis.azureus.ui.UIFunctions;
 import com.aelitis.azureus.ui.UIFunctionsManager;
 import com.frostwire.util.FileUtils;
+import com.frostwire.vuze.VuzeManager;
 
 /**
  * @author gubatron
@@ -58,7 +59,7 @@ import com.frostwire.util.FileUtils;
 public class TorrentUtil {
 
     private static final Logger LOG = LoggerFactory.getLogger(TorrentUtil.class);
-    
+
     private static AsyncDispatcher async = new AsyncDispatcher(2000);
 
     public static Set<DiskManagerFileInfo> getNoSkippedFileInfoSet(DownloadManager dm) {
@@ -394,11 +395,7 @@ public class TorrentUtil {
     public static Set<File> getIncompleteFiles() {
         Set<File> set = new HashSet<File>();
 
-        if (!AzureusManager.isCreated()) {
-            return set;
-        }
-
-        List<?> dms = AzureusManager.instance().getGlobalManager().getDownloadManagers();
+        List<?> dms = VuzeManager.getInstance().getGlobalManager().getDownloadManagers();
         for (Object obj : dms) {
             DownloadManager dm = (DownloadManager) obj;
             set.addAll(getIncompleteFiles(dm));
@@ -424,11 +421,7 @@ public class TorrentUtil {
     public static Set<File> getSkipedFiles() {
         Set<File> set = new HashSet<File>();
 
-        if (!AzureusManager.isCreated()) {
-            return set;
-        }
-
-        List<?> dms = AzureusManager.instance().getGlobalManager().getDownloadManagers();
+        List<?> dms = VuzeManager.getInstance().getGlobalManager().getDownloadManagers();
         for (Object obj : dms) {
             DownloadManager dm = (DownloadManager) obj;
             set.addAll(getSkippedFiles(dm));

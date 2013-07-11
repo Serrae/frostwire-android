@@ -44,6 +44,7 @@ import com.frostwire.search.SearchResult;
 import com.frostwire.search.soundcloud.SoundcloudSearchResult;
 import com.frostwire.search.torrent.TorrentSearchResult;
 import com.frostwire.search.youtube.YouTubeCrawledSearchResult;
+import com.frostwire.vuze.VuzeManager;
 
 /**
  * @author gubatron
@@ -227,7 +228,7 @@ public final class TransferManager {
     }
 
     public long getDownloadsBandwidth() {
-        long torrenDownloadsBandwidth = AzureusManager.isCreated() ? AzureusManager.instance().getGlobalManager().getStats().getDataReceiveRate() / 1000 : 0;
+        long torrenDownloadsBandwidth = VuzeManager.getInstance().getGlobalManager().getStats().getDataReceiveRate() / 1000;
 
         long peerDownloadsBandwidth = 0;
         for (DownloadTransfer d : downloads) {
@@ -238,7 +239,7 @@ public final class TransferManager {
     }
 
     public double getUploadsBandwidth() {
-        long torrenUploadsBandwidth = AzureusManager.isCreated() ? AzureusManager.instance().getGlobalManager().getStats().getDataSendRate() / 1000 : 0;
+        long torrenUploadsBandwidth = VuzeManager.getInstance().getGlobalManager().getStats().getDataSendRate() / 1000;
 
         long peerUploadsBandwidth = 0;
         for (UploadTransfer u : uploads) {
@@ -271,15 +272,11 @@ public final class TransferManager {
     public void loadTorrents() {
         bittorrentDownloads.clear();
 
-        if (!AzureusManager.isCreated()) {
-            return;
-        }
-
         AzureusCoreFactory.addCoreRunningListener(new AzureusCoreRunningListener() {
 
             @Override
             public void azureusCoreRunning(AzureusCore core) {
-                GlobalManager globalManager = AzureusManager.instance().getAzureusCore().getGlobalManager();
+                GlobalManager globalManager = core.getGlobalManager();
                 List<?> downloadManagers = globalManager.getDownloadManagers();
 
                 List<DownloadManager> downloads = new ArrayList<DownloadManager>();

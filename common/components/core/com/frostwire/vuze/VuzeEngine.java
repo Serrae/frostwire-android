@@ -21,6 +21,7 @@ package com.frostwire.vuze;
 import java.io.File;
 
 import org.gudy.azureus2.core3.config.COConfigurationManager;
+import org.gudy.azureus2.core3.global.GlobalManager;
 import org.gudy.azureus2.core3.util.SystemProperties;
 
 import com.aelitis.azureus.core.AzureusCore;
@@ -42,11 +43,15 @@ public abstract class VuzeEngine {
         this.core.start();
     }
 
+    public GlobalManager getGlobalManager() {
+        return core.getGlobalManager();
+    }
+
     public void pause() {
     }
 
     public void resume() {
-
+        core.getGlobalManager().resumeDownloads();
     }
 
     protected abstract File getVuzePath();

@@ -35,7 +35,6 @@ import com.frostwire.android.core.Constants;
 import com.frostwire.android.core.player.CoreMediaPlayer;
 import com.frostwire.android.gui.Librarian;
 import com.frostwire.android.gui.NetworkManager;
-import com.frostwire.android.gui.transfers.AzureusManager;
 import com.frostwire.android.gui.transfers.TransferManager;
 import com.frostwire.android.util.concurrent.ExecutorsHelper;
 
@@ -95,7 +94,7 @@ public class EngineBroadcastReceiver extends BroadcastReceiver {
                 // no sure about this case
             }
 
-            if (!Librarian.instance().isExternalStorageMounted() && AzureusManager.isCreated()) {
+            if (!Librarian.instance().isExternalStorageMounted() /*&& AzureusManager.isCreated()*/) {
                 Log.v(TAG, "Halting process due to lack of external storage");
                 Librarian.instance().halt();
             }

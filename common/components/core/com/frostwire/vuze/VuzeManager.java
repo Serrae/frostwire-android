@@ -19,6 +19,7 @@
 package com.frostwire.vuze;
 
 import org.gudy.azureus2.core3.config.COConfigurationManager;
+import org.gudy.azureus2.core3.global.GlobalManager;
 
 import com.frostwire.util.OSUtils;
 
@@ -43,6 +44,10 @@ public final class VuzeManager {
 
     private VuzeManager() {
         this.engine = createEngine();
+    }
+
+    public GlobalManager getGlobalManager() {
+        return engine.getGlobalManager();
     }
 
     public void pause() {

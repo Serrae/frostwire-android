@@ -44,6 +44,7 @@ import com.frostwire.android.util.ByteUtils;
 import com.frostwire.android.util.StringUtils;
 import com.frostwire.search.torrent.TorrentCrawledSearchResult;
 import com.frostwire.search.torrent.TorrentSearchResult;
+import com.frostwire.vuze.VuzeManager;
 
 /**
  * @author gubatron
@@ -84,11 +85,7 @@ final class BittorrentDownloadCreator {
     }
 
     public static BittorrentDownload create(TransferManager manager, TorrentSearchResult sr) throws TOTorrentException {
-        if (!AzureusManager.isCreated()) {
-            return new InvalidBittorrentDownload(R.string.azureus_manager_not_created);
-        }
-
-        GlobalManager gm = AzureusManager.instance().getGlobalManager();
+        GlobalManager gm = VuzeManager.getInstance().getGlobalManager();
 
         if (StringUtils.isNullOrEmpty(sr.getHash())) {
             return new TorrentFetcherDownload(manager, new TorrentSearchResultInfo(sr));
@@ -124,7 +121,7 @@ final class BittorrentDownloadCreator {
      * @throws TOTorrentException
      */
     public static BittorrentDownload create(TransferManager manager, String torrentFile, byte[] hash, String relativePartialPath) throws TOTorrentException {
-        GlobalManager gm = AzureusManager.instance().getGlobalManager();
+        GlobalManager gm = VuzeManager.getInstance().getGlobalManager();
         TOTorrent torrent = null;
         DownloadManager dm = null;
 
@@ -307,7 +304,7 @@ final class BittorrentDownloadCreator {
     }
 
     private static DownloadManager createDownloadManager(TransferManager manager, String torrentFile, final boolean[] fileSelection) {
-        GlobalManager globalManager = AzureusManager.instance().getGlobalManager();
+        GlobalManager globalManager = VuzeManager.getInstance().getGlobalManager();
         String saveDir = SystemUtils.getTorrentDataDirectory().getAbsolutePath();
 
         if (fileSelection == null) {
