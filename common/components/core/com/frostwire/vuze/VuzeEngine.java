@@ -19,6 +19,8 @@
 package com.frostwire.vuze;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.concurrent.Callable;
 
 import org.gudy.azureus2.core3.config.COConfigurationManager;
 import org.gudy.azureus2.core3.global.GlobalManager;
@@ -26,6 +28,7 @@ import org.gudy.azureus2.core3.util.SystemProperties;
 
 import com.aelitis.azureus.core.AzureusCore;
 import com.aelitis.azureus.core.AzureusCoreFactory;
+import com.aelitis.azureus.core.AzureusCoreRunningListener;
 
 /**
  * @author gubatron
@@ -52,6 +55,35 @@ public abstract class VuzeEngine {
 
     public void resume() {
         core.getGlobalManager().resumeDownloads();
+    }
+
+    public void runAsync(final Runnable command) {
+        AzureusCoreFactory.addCoreRunningListener(new AzureusCoreRunningListener() {
+            @Override
+            public void azureusCoreRunning(AzureusCore core) {
+                command.run();
+            }
+        });
+    }
+
+    public <V> V runSync(final Callable<V> task) {
+        final ArrayList<V> holder = new ArrayList<V>(1);
+
+        // default return to null
+        holder.set(0, null);
+
+        AzureusCoreFactory.addCoreRunningListener(new AzureusCoreRunningListener() {
+            @Override
+            public void azureusCoreRunning(AzureusCore core) {
+                try {
+                    holder.set(0, task.call());
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        });
+
+        return holder.get(0);
     }
 
     protected abstract File getVuzePath();
