@@ -26,6 +26,9 @@ import com.frostwire.android.gui.services.Engine;
 import com.frostwire.android.gui.util.SystemUtils;
 import com.frostwire.android.gui.views.ImageLoader;
 import com.frostwire.util.FileUtils;
+import com.frostwire.vuze.AndroidVuzeEngine;
+import com.frostwire.vuze.VuzeEngine;
+import com.frostwire.vuze.VuzeManager;
 
 /**
  * 
@@ -46,8 +49,10 @@ public class MainApplication extends Application {
             Librarian.create(this);
             Engine.create(this);
 
+            loadVuzeMessages();
+
             ImageLoader.createDefaultInstance(this);
-            
+
             FileUtils.deleteFolderRecursively(SystemUtils.getTempDirectory());
 
             Librarian.instance().syncMediaStore();
@@ -55,6 +60,13 @@ public class MainApplication extends Application {
         } catch (Throwable e) {
             String stacktrace = Log.getStackTraceString(e);
             throw new RuntimeException("MainApplication Create exception: " + stacktrace, e);
+        }
+    }
+
+    private void loadVuzeMessages() {
+        VuzeEngine engine = VuzeManager.getInstance().getEngine();
+        if (engine instanceof AndroidVuzeEngine) {
+            ((AndroidVuzeEngine) engine).loadMessages(this);
         }
     }
 }

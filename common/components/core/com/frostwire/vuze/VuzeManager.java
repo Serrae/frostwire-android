@@ -46,6 +46,10 @@ public final class VuzeManager {
         this.engine = createEngine();
     }
 
+    public VuzeEngine getEngine() {
+        return engine;
+    }
+
     public GlobalManager getGlobalManager() {
         return engine.getGlobalManager();
     }
@@ -63,7 +67,7 @@ public final class VuzeManager {
         autoAdjustBittorrentSpeed();
     }
 
-    public static void autoAdjustBittorrentSpeed() {
+    private static void autoAdjustBittorrentSpeed() {
         if (COConfigurationManager.getBooleanParameter("Auto Adjust Transfer Defaults")) {
 
             int up_limit_bytes_per_sec = 0;//getEstimatedUploadCapacityBytesPerSec().getBytesPerSec();
