@@ -21,7 +21,10 @@
 
 package com.frostwire.torrent;
 
-public class TOTorrentException extends Exception {
+import java.io.IOException;
+
+public class TOTorrentException extends IOException {
+
     public static final int RT_FILE_NOT_FOUND = 1;
     public static final int RT_ZERO_LENGTH = 2;
     public static final int RT_TOO_BIG = 3;
@@ -32,21 +35,19 @@ public class TOTorrentException extends Exception {
     public static final int RT_HASH_FAILS = 8;
     public static final int RT_CANCELLED = 9;
 
-    protected int reason;
+    private final int reason;
 
-    public TOTorrentException(String _str, int _reason) {
-        super(_str);
-
-        reason = _reason;
+    public TOTorrentException(String str, int reason) {
+        super(str);
+        this.reason = reason;
     }
 
-    public TOTorrentException(String _str, int _reason, Throwable cause) {
-        this(_str, _reason);
-
-        initCause(cause);
+    public TOTorrentException(String str, int reason, Throwable cause) {
+        super(str, cause);
+        this.reason = reason;
     }
 
     public int getReason() {
-        return (reason);
+        return reason;
     }
 }

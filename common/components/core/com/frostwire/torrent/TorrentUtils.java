@@ -59,9 +59,7 @@ public final class TorrentUtils {
     public static final String TORRENT_AZ_PROP_INITIAL_LINKAGE = "initial_linkage";
     public static final String TORRENT_AZ_PROP_INITIAL_LINKAGE2 = "initial_linkage2";
 
-    public static TOTorrent readFromBEncodedInputStream(InputStream is)
-
-    throws TOTorrentException {
+    public static TOTorrent readFromBEncodedInputStream(InputStream is) throws TOTorrentException {
         TOTorrent torrent = TOTorrentFactory.deserialiseFromBEncodedInputStream(is);
 
         // as we've just imported this torrent we want to clear out any possible attributes that we
@@ -81,7 +79,6 @@ public final class TorrentUtils {
             String str = torrent.getAdditionalStringProperty("torrent filename");
 
             if (str == null) {
-
                 throw (new TOTorrentException("TorrentUtils::writeToFile: no 'torrent filename' attribute defined", TOTorrentException.RT_FILE_NOT_FOUND));
             }
 
