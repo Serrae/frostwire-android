@@ -21,9 +21,16 @@
 
 package org.gudy.azureus2.pluginsimpl.local.download;
 
+import java.io.File;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.gudy.azureus2.plugins.download.Download;
 import org.gudy.azureus2.plugins.download.DownloadException;
 import org.gudy.azureus2.plugins.download.DownloadStub;
+
+import com.aelitis.azureus.util.MapUtils;
 
 public class 
 DownloadStubImpl
@@ -32,19 +39,73 @@ DownloadStubImpl
 	private final DownloadManagerImpl		manager;
 	private final String					name;
 	private final byte[]					hash;
-	private final DownloadStubFile[]		files;
+	private final DownloadStubFileImpl[]	files;
+	private final Map						gm_map;
 	
 	protected
 	DownloadStubImpl(
 		DownloadManagerImpl		_manager,
 		String					_name,
 		byte[]					_hash,
-		DownloadStubFile[]		_files )
+		DownloadStubFile[]		_files,
+		Map						_gm_map )
 	{
 		manager		= _manager;
 		name		= _name;
 		hash		= _hash;
-		files		= _files;
+
+		gm_map		= _gm_map;
+		
+		files		= new DownloadStubFileImpl[_files.length];
+		
+		for ( int i=0;i<files.length;i++){
+			
+			files[i] = new DownloadStubFileImpl( _files[i] );
+		}
+	}
+	
+	protected
+	DownloadStubImpl(
+		DownloadManagerImpl		_manager,
+		Map						_map )
+	{
+		manager		= _manager;
+		
+		hash = (byte[])_map.get( "hash" );
+		
+		name	= MapUtils.getMapString( _map, "name", null );
+		
+		gm_map = (Map)_map.get( "gm" );
+		
+		List	file_list = (List)_map.get( "files" );
+		
+		if ( file_list == null ){
+			
+			files = new DownloadStubFileImpl[0];
+			
+		}else{
+			
+			files = new DownloadStubFileImpl[file_list.size()];
+			
+			for ( int i=0;i<files.length;i++){
+				
+				files[i] = new DownloadStubFileImpl((Map)file_list.get(i));
+			}
+		}
+	}
+	
+	public Map
+	exportToMap()
+	{
+		Map	map = new HashMap();
+		
+		map.put( "hash", hash );
+		
+		MapUtils.setMapString(map, "name", name );
+		
+		map.put( "gm", gm_map );
+		
+		return( map );
 	}
 	
 	public boolean
@@ -77,5 +138,65 @@ DownloadStubImpl
 	getStubFiles()
 	{
 		return( files );
+	}
+	
+	public Map
+	getGMMap()
+	{
+		return( gm_map );
+	}
+	
+	public void
+	remove()
+	{
+		manager.remove( this );
+	}
+	
+	protected static class
+	DownloadStubFileImpl
+		implements DownloadStubFile
+	{
+		private final File		file;
+		private final long		length;
+		
+		protected
+		DownloadStubFileImpl(
+			DownloadStubFile	stub_file )
+		{
+			file	= stub_file.getFile();
+			length	= stub_file.getLength();
+		}
+		
+		protected
+		DownloadStubFileImpl(
+			Map		map )
+		{
+			file 	= new File( MapUtils.getMapString(map, "file", null ));
+			
+			length 	= (Long)map.get( "len" );
+		}
+		
+		protected Map
+		exportToMap()
+		{
+			Map	map = new HashMap();
+
+			map.put( "file", file.getAbsolutePath());
+			map.put( "len", length );
+			
+			return( map );
+		}
+		
+		public File
+		getFile()
+		{
+			return( file );
+		}
+		
+		public long
+		getLength()
+		{
+			return( length );
+		}
 	}
 }

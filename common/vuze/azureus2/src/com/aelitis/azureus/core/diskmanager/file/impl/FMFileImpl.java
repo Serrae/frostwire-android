@@ -26,6 +26,7 @@ package com.aelitis.azureus.core.diskmanager.file.impl;
  */
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.util.*;
@@ -94,7 +95,9 @@ FMFileImpl
 		owner			= _owner;
 		manager			= _manager;
 		
-		linked_file		= manager.getFileLink( owner.getTorrentFile().getTorrent(), _file );
+		TOTorrentFile tf = owner.getTorrentFile();
+		
+		linked_file		= manager.getFileLink( tf.getTorrent(), tf.getIndex(), _file );
 		
 		boolean	file_was_created	= false;
 		boolean	file_reserved		= false;
@@ -284,8 +287,11 @@ FMFileImpl
 		try{
 			this_mon.enter();
 		
+			TOTorrentFile tf = owner.getTorrentFile();
+
 			String	new_canonical_path;
-			File	new_linked_file	= manager.getFileLink( owner.getTorrentFile().getTorrent(), new_unlinked_file );
+			
+			File	new_linked_file	= manager.getFileLink( tf.getTorrent(), tf.getIndex(), new_unlinked_file );
 			
 			try{
         
@@ -576,6 +582,33 @@ FMFileImpl
 			
 			raf = new RandomAccessFile( linked_file, access_mode==FM_READ?READ_ACCESS_MODE:WRITE_ACCESS_MODE);
 			
+		}catch( FileNotFoundException e ){
+			
+			int st = file_access.getStorageType();
+			
+			boolean	ok = false;
+			
+				// edge case here when switching one file from dnd -> download and the compact files at edge boundaries not
+				// yet allocated - attempt to create the file on demand
+							
+			try{
+				linked_file.getParentFile().mkdirs();
+					
+				linked_file.createNewFile();
+					
+				raf = new RandomAccessFile( linked_file, access_mode==FM_READ?READ_ACCESS_MODE:WRITE_ACCESS_MODE);
+					
+				ok = true;
+					
+			}catch( Throwable f ){
+			}
+			
+			if ( !ok ){
+				
+				Debug.printStackTrace( e );
+				
+				throw( new FMFileManagerException( "open fails", e ));
+			}
 		}catch( Throwable e ){
 			
 			Debug.printStackTrace( e );

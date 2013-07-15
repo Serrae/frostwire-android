@@ -50,6 +50,7 @@ import com.aelitis.azureus.core.AzureusCoreFactory;
 import com.aelitis.azureus.core.util.CaseSensitiveFileMap;
 import com.aelitis.azureus.core.util.CopyOnWriteList;
 import com.aelitis.azureus.core.util.CopyOnWriteMap;
+import com.aelitis.azureus.core.util.LinkFileMap;
 
 /**
  * @author parg
@@ -508,6 +509,94 @@ DownloadManagerStateImpl
 		global_state_cache_wrappers.trimToSize();
 	}
 
+	public static void
+	importDownloadState(
+		File		source_dir,
+		byte[]		download_hash )
+	
+		throws DownloadManagerException
+	{
+		String	hash_str = ByteFormatter.encodeString( download_hash );
+		
+		String	state_file = hash_str + ".dat";
+		
+		File	target_state_file 	= new File( ACTIVE_DIR, state_file );
+		File	source_state_file 	= new File( source_dir, state_file );
+		
+		if ( !source_state_file.exists()){
+			
+			throw( new DownloadManagerException( "Source state file missing: " + source_state_file ));
+		}
+		
+		if ( target_state_file.exists()){
+			
+			throw( new DownloadManagerException( "Target state file already exists: " + target_state_file ));
+		}
+		
+		if ( !FileUtil.copyFile( source_state_file, target_state_file )){
+			
+			throw( new DownloadManagerException( "Failed to copy state file: " + source_state_file + " -> " + target_state_file ));
+		}
+		
+		File	source_state_dir = new File( source_dir, hash_str );
+		
+		if ( source_state_dir.exists()){
+			
+			File	target_state_dir = new File( ACTIVE_DIR, hash_str );
+
+			try{		
+				FileUtil.copyFileOrDirectory( source_state_dir, target_state_dir );
+				
+			}catch( Throwable e ){
+				
+				target_state_file.delete();
+				
+				throw( new DownloadManagerException( "Failed to copy state dir: " + source_dir + " -> " + target_state_dir, e ));
+			}
+		}		
+	}
+	
+	public static void
+	deleteDownloadState(
+		byte[]		download_hash )
+	
+		throws DownloadManagerException
+	{
+		deleteDownloadState( ACTIVE_DIR, download_hash );
+	}
+	
+	public static void
+	deleteDownloadState(
+		File		source_dir,
+		byte[]		download_hash )
+	
+		throws DownloadManagerException
+	{
+		String	hash_str = ByteFormatter.encodeString( download_hash );
+		
+		String	state_file = hash_str + ".dat";
+		
+		File	target_state_file 	= new File( source_dir, state_file );
+		
+		if ( target_state_file.exists()){
+			
+			if ( !target_state_file.delete()){
+				
+				throw( new DownloadManagerException( "Failed to delete state file: " + target_state_file ));
+			}
+		}
+		
+		File	target_state_dir = new File( source_dir, hash_str );
+
+		if ( target_state_dir.exists()){
+				
+			if ( !FileUtil.recursiveDelete( target_state_dir )){
+				
+				throw( new DownloadManagerException( "Failed to delete state dir: " + target_state_dir ));
+			}
+		}		
+	}
+	
 	protected
 	DownloadManagerStateImpl(
 		DownloadManagerImpl				_download_manager,
@@ -1638,17 +1727,17 @@ DownloadManagerStateImpl
 	  
 	  // links stuff
 	  
-	private volatile WeakReference<CaseSensitiveFileMap>	file_link_cache 	= null;
-	private int												file_cache_inhibit 	= 0;
+	private volatile WeakReference<LinkFileMap>				file_link_cache 	= null;
 	
 	public void
 	setFileLink(
+		int		source_index,
 		File	link_source,
 		File	link_destination )
 	{
-		CaseSensitiveFileMap	links = getFileLinks();
+		LinkFileMap	links = getFileLinks();
 		
-		File	existing = (File)links.get(link_source);
+		File	existing = (File)links.get( source_index, link_source);
 		
 		if ( link_destination == null ){
 			
@@ -1661,56 +1750,52 @@ DownloadManagerStateImpl
 			return;
 		}
 		
-		links.put( link_source, link_destination );
+		links.put( source_index, link_source, link_destination );
 		
 		List	list = new ArrayList();
 		
-		Iterator	it = links.keySetIterator();
+		Iterator<LinkFileMap.Entry>	it = links.entryIterator();
 		
 		while( it.hasNext()){
 			
-			File	source = (File)it.next();
-			File	target = (File)links.get(source);
+			LinkFileMap.Entry	entry = it.next();
 			
-			String	str = source + "\n" + (target==null?"":target.toString());
+			int		index	= entry.getIndex();
+			File	source 	= entry.getFromFile();
+			File	target 	= entry.getToFile();
+			
+			String	str = index + "\n" + source + "\n" + (target==null?"":target.toString());
 			
 			list.add( str );
 		}
 		
-		try{
-			synchronized( this ){
-				
-				file_cache_inhibit++;
+		//System.out.println( "setFileLink: " + link_source + " -> " + link_destination );
 		
-				file_link_cache = null;		// ensure write-listeners get recent state
-			}
-			
-			setListAttribute( AT_FILE_LINKS, list );
-			
-		}finally{
-			
-			synchronized( this ){
+		synchronized( this ){
 				
-				file_cache_inhibit--;
-			}
+			file_link_cache = new WeakReference<LinkFileMap>( links );
 		}
+			
+		setListAttribute( AT_FILE_LINKS2, list );
 	}
 	
 	public void
 	setFileLinks(
-		List<File>	link_sources,
-		List<File>	link_destinations )
+		List<Integer>	source_indexes,
+		List<File>		link_sources,
+		List<File>		link_destinations )
 	{
-		CaseSensitiveFileMap	links = getFileLinks();
+		LinkFileMap	links = getFileLinks();
 		
 		boolean changed = false;
 		
 		for ( int i=0;i<link_sources.size();i++){
 			
+			int		source_index		= source_indexes.get( i );
 			File	link_source 		= link_sources.get(i);
 			File	link_destination 	= link_destinations.get(i);
 		
-			File	existing = (File)links.get(link_source);
+			File	existing = links.get( source_index, link_source);
 			
 			if ( link_destination == null ){
 				
@@ -1723,7 +1808,7 @@ DownloadManagerStateImpl
 				continue;
 			}
 			
-			links.put( link_source, link_destination );
+			links.put( source_index, link_source, link_destination );
 			
 			changed = true;
 		}
@@ -1733,94 +1818,83 @@ DownloadManagerStateImpl
 			return;
 		}
 		
+		//System.out.println( "setFileLinks: " + links.getString());
+		
 		List	list = new ArrayList();
 		
-		Iterator	it = links.keySetIterator();
+		Iterator<LinkFileMap.Entry>	it = links.entryIterator();
 		
 		while( it.hasNext()){
 			
-			File	source = (File)it.next();
-			File	target = (File)links.get(source);
+			LinkFileMap.Entry	entry = it.next();
 			
-			String	str = source + "\n" + (target==null?"":target.toString());
+			int		index	= entry.getIndex();
+			File	source 	= entry.getFromFile();
+			File	target 	= entry.getToFile();
+			
+			String	str = index + "\n" + source + "\n" + (target==null?"":target.toString());
 			
 			list.add( str );
 		}
 		
-		try{
-			synchronized( this ){
+		synchronized( this ){
 				
-				file_cache_inhibit++;
-		
-				file_link_cache = null;		// ensure write-listeners get recent state
-			}
-			
-			setListAttribute( AT_FILE_LINKS, list );
-			
-		}finally{
-			
-			synchronized( this ){
-				
-				file_cache_inhibit--;
-			}
+			file_link_cache = new WeakReference<LinkFileMap>( links );		
 		}
+			
+		setListAttribute( AT_FILE_LINKS2, list );
 	}
 	
 	public void
 	clearFileLinks()
 	{
-		CaseSensitiveFileMap	links = getFileLinks();
+		LinkFileMap	links = getFileLinks();
 		
 		List	list = new ArrayList();
 		
-		Iterator	it = links.keySetIterator();
+		Iterator<LinkFileMap.Entry>	it = links.entryIterator();
 		
 		boolean	changed = false;
 		
 		while( it.hasNext()){
 			
-			File	source = (File)it.next();
-			File	target = (File)links.get(source);
+			LinkFileMap.Entry	entry = it.next();
+			
+			int		index	= entry.getIndex();
+			File	source 	= entry.getFromFile();
+			File	target 	= entry.getToFile();
 			
 			if ( target != null ){
 				
 				changed = true;
 			}
 			
-			String	str = source + "\n";
+			String	str = index + "\n" + source + "\n";
 			
 			list.add( str );
 		}
 		
 		if ( changed ){
 	
-			try{
-				synchronized( this ){
-					
-					file_cache_inhibit++;
-			
-					file_link_cache = null;		// ensure write-listeners get recent state
-				}
-							
-				setListAttribute( AT_FILE_LINKS, list );
-			
-			}finally{
-				
-				synchronized( this ){
-					
-					file_cache_inhibit--;
-				}
+			synchronized( this ){
+								
+				file_link_cache = null;	
 			}
+							
+			setListAttribute( AT_FILE_LINKS2, list );
 		}
+		
+		//System.out.println( "clearFileLinks" );
 	}
 	
 	public File
 	getFileLink(
+		int		source_index,
 		File	link_source )
 	{
-		CaseSensitiveFileMap map = null;
+		LinkFileMap map = null;
 		
-		WeakReference<CaseSensitiveFileMap> ref = file_link_cache;
+		WeakReference<LinkFileMap> ref = file_link_cache;
 		
 		if ( ref != null ){
 			
@@ -1832,37 +1906,101 @@ DownloadManagerStateImpl
 			map = getFileLinks();
 			
 			synchronized( this ){
+								
+				file_link_cache = new WeakReference<LinkFileMap>( map );
+			}
+		}
+		
+		File res = map.get( source_index, link_source );
+		
+		//System.out.println( "getFileLink: " + link_source + " -> " + res );
+		
+		return( res );
+	}
+		
+	public LinkFileMap
+	getFileLinks()
+	{
+		LinkFileMap map = null;
+		
+		WeakReference<LinkFileMap> ref = file_link_cache;
+		
+		if ( ref != null ){
+			
+			map = ref.get();
+		}
+		
+		if ( map == null ){
+					
+			map = getFileLinksSupport();
+			
+			synchronized( this ){
+								
+				file_link_cache = new WeakReference<LinkFileMap>( map );
+			}
+		}
+		
+		return( map );
+	}
+	
+	private LinkFileMap
+	getFileLinksSupport()
+	{
+		LinkFileMap	res = new LinkFileMap();
+
+		List	new_values = getListAttributeSupport( AT_FILE_LINKS2 );
+		
+		if ( new_values.size() > 0 ){
+			
+			for (int i=0;i<new_values.size();i++){
 				
-				if ( file_cache_inhibit == 0 ){
+				String	entry = (String)new_values.get(i);
+			
+				String[] bits = entry.split( "\n" );
+					
+				if ( bits.length >= 2 ){
+					
+					try{
+						int		index 	= Integer.parseInt( bits[0].trim());
+						File	source	= new File(bits[1].trim());
+						File	target	= bits.length<3?null:new File(bits[2].trim());
+							
+						if( index >= 0 ){
+						
+							res.put( index, source, target );
+						
+						}else{
+							
+								// can get here when partially resolved link state is saved and then re-read
+							
+							res.putMigration( source, target );
+						}
+					}catch( Throwable e ){
+						
+						Debug.out( e );
+					}
+				}
+			}
+		}else{
+			
+			List	old_values = getListAttributeSupport( AT_FILE_LINKS_DEPRECATED );
+			
+			for (int i=0;i<old_values.size();i++){
 				
-					file_link_cache = new WeakReference<CaseSensitiveFileMap>( map );
+				String	entry = (String)old_values.get(i);
+			
+				int	sep = entry.indexOf( "\n" );
+				
+				if ( sep != -1 ){
+					
+					File target = (sep == entry.length()-1)?null:new File( entry.substring( sep+1 ));
+					
+					res.putMigration( new File( entry.substring(0,sep)), target );
 				}
 			}
 		}
 		
-		return((File)map.get(link_source));
-	}
-					
-	public CaseSensitiveFileMap
-	getFileLinks()
-	{
-		List	values = getListAttributeSupport( AT_FILE_LINKS );
-
-		CaseSensitiveFileMap	res = new CaseSensitiveFileMap();
-		
-		for (int i=0;i<values.size();i++){
-			
-			String	entry = (String)values.get(i);
-		
-			int	sep = entry.indexOf( "\n" );
-			
-			if ( sep != -1 ){
-				
-				File target = (sep == entry.length()-1)?null:new File( entry.substring( sep+1 ));
-				
-				res.put( new File( entry.substring(0,sep)), target );
-			}
-		}
+		//System.out.println( "getFileLinks: " + res.getString());
 		
 		return( res );
 	}
@@ -2828,6 +2966,7 @@ DownloadManagerStateImpl
 		
 	    public void
 		setFileLink(
+			int		source_index,
 			File	link_source,
 			File	link_destination )
 	    {
@@ -2835,8 +2974,9 @@ DownloadManagerStateImpl
 	    
 	    public void
 		setFileLinks(
-			List<File>	link_sources,
-			List<File>	link_destinations )
+			List<Integer>	source_indexes,
+			List<File>		link_sources,
+			List<File>		link_destinations )
 	    {
 	    }
 	    
@@ -2847,15 +2987,16 @@ DownloadManagerStateImpl
 		
 		public File
 		getFileLink(
+			int		source_index,
 			File	link_source )
 		{
 			return( null );
 		}
 		
-		public CaseSensitiveFileMap
+		public LinkFileMap
 		getFileLinks()
 		{
-			return( new CaseSensitiveFileMap());
+			return( new LinkFileMap());
 		}
 		
 		public void 

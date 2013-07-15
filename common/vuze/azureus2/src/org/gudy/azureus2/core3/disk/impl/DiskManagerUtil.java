@@ -157,7 +157,12 @@ DiskManagerUtil
 		return true;
 	}
 	
-	public static void doFileExistenceChecks(DiskManagerFileInfoSet fileSet, boolean[] toCheck, DownloadManager dm, boolean allowAlloction)
+	public static void 
+	doFileExistenceChecks(
+		DiskManagerFileInfoSet 	fileSet, 
+		boolean[] 				toCheck, 
+		DownloadManager 		dm, 
+		boolean 				allowAlloction )
 	{
 		DiskManagerFileInfo[] files = fileSet.getFiles();
 		
@@ -219,25 +224,6 @@ DiskManagerUtil
 	    File                    from_file,
 	    File                    to_link )
 	{
-	        // existing link is that for the TO_LINK and will come back as TO_LINK if no link is defined
-	
-	    File    existing_link = FMFileManagerFactory.getSingleton().getFileLink( download_manager.getTorrent(), to_link );
-	
-	    if ( !existing_link.equals( to_link )){
-	
-	            // where we're mapping to is already linked somewhere else. Only case we support
-	            // is where this is a remapping of the same file back to where it came from
-	
-	        if ( !from_file.equals( to_link )){
-	
-	            Logger.log(new LogAlert(download_manager, LogAlert.REPEATABLE, LogAlert.AT_ERROR,
-	                            "Attempt to link to existing link '" + existing_link.toString()
-	                                    + "'"));
-	
-	            return( false );
-	        }
-	    }
-	
 	    File    existing_file = file_info.getFile( true );
 	
 	    if ( to_link.equals( existing_file )){
@@ -301,7 +287,7 @@ DiskManagerUtil
 	
 	    DownloadManagerState    state = download_manager.getDownloadState();
 	
-	    state.setFileLink( from_file, to_link );
+	    state.setFileLink( file_info.getIndex(), from_file, to_link );
 	
 	    state.save();
 	
@@ -440,18 +426,20 @@ DiskManagerUtil
 					
 					DiskManagerImpl.storeFilePriorities( download_manager, res);
 
-					List<File>	from_links 	= new ArrayList<File>();
-					List<File>	to_links	= new ArrayList<File>();
+					List<Integer>	from_indexes 	= new ArrayList<Integer>();
+					List<File>		from_links 		= new ArrayList<File>();
+					List<File>		to_links		= new ArrayList<File>();
 					
 					for(int i=0;i<res.length;i++){
 						if ( to_link[i] != null ){
+							from_indexes.add( i );
 							from_links.add( res[i].getFile( false ));
 							to_links.add( to_link[i] );
 						}
 					}
 					
 					if ( from_links.size() > 0 ){
-						download_manager.getDownloadState().setFileLinks( from_links, to_links );
+						download_manager.getDownloadState().setFileLinks( from_indexes, from_links, to_links );
 					}
 					
 					if(!setSkipped){
@@ -657,7 +645,7 @@ DiskManagerUtil
 
 	            		if ( to_link != null ){
 	            			
-	            			download_manager.getDownloadState().setFileLink( getFile( false ), to_link );
+	            			download_manager.getDownloadState().setFileLink( file_index, getFile( false ), to_link );
 	            		}
 	            		
 	            		if ( !_skipped ){
@@ -972,7 +960,7 @@ DiskManagerUtil
                 	public File
                 	getLink()
                 	{
-                		return( download_manager.getDownloadState().getFileLink( lazyGetFile() ));
+                		return( download_manager.getDownloadState().getFileLink( file_index, lazyGetFile() ));
                 	}
 
                 	public boolean setStorageType(int type) {

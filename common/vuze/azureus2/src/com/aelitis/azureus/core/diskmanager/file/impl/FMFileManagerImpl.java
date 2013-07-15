@@ -35,6 +35,7 @@ import org.gudy.azureus2.core3.config.*;
 
 import com.aelitis.azureus.core.diskmanager.file.*;
 import com.aelitis.azureus.core.util.CaseSensitiveFileMap;
+import com.aelitis.azureus.core.util.LinkFileMap;
 
 public class 
 FMFileManagerImpl
@@ -68,7 +69,7 @@ FMFileManagerImpl
 	protected LinkedHashMap		map;
 	protected AEMonitor			map_mon	= new AEMonitor( "FMFileManager:Map");
 
-	protected HashMap			links		= new HashMap();
+	protected HashMap<Object,LinkFileMap>			links		= new HashMap<Object,LinkFileMap>();
 	protected AEMonitor			links_mon	= new AEMonitor( "FMFileManager:Links");
 
 	protected boolean			limited;
@@ -118,7 +119,7 @@ FMFileManagerImpl
 		}
 	}
 	
-	protected CaseSensitiveFileMap
+	protected LinkFileMap
 	getLinksEntry(
 		TOTorrent	torrent )
 	{
@@ -135,11 +136,11 @@ FMFileManagerImpl
 			links_key	= "";
 		}
 		
-		CaseSensitiveFileMap	links_entry = (CaseSensitiveFileMap)links.get( links_key );
+		LinkFileMap	links_entry = links.get( links_key );
 		
 		if ( links_entry == null ){
 			
-			links_entry	= new CaseSensitiveFileMap();
+			links_entry	= new LinkFileMap();
 			
 			links.put( links_key, links_entry );
 		}
@@ -149,29 +150,40 @@ FMFileManagerImpl
 	
 	public void
 	setFileLinks(
-		TOTorrent 				torrent,
-		CaseSensitiveFileMap	new_links )
+		TOTorrent 		torrent,
+		LinkFileMap		new_links )
 	{
 		try{
 			links_mon.enter();
 			
-			CaseSensitiveFileMap	links_entry = getLinksEntry( torrent );
+			LinkFileMap	links_entry = getLinksEntry( torrent );
 			
-			Iterator	it = new_links.keySetIterator();
+			Iterator<LinkFileMap.Entry>	it = new_links.entryIterator();
 			
 			while( it.hasNext()){
 				
-				File	source 	= (File)it.next();
-				File	target	= (File)new_links.get(source);
+				LinkFileMap.Entry	entry = it.next();
+				
+				int		index	= entry.getIndex();
+				
+				File	source 	= entry.getFromFile();
+				File	target	= entry.getToFile();
 				
 				// System.out.println( "setLink:" + source + " -> " + target );
 				
 				if ( target != null && !source.equals(target)){
 					
-					links_entry.put( source, target );
+					if ( index >= 0 ){
+					
+						links_entry.put( index, source, target );
+						
+					}else{
+						
+						links_entry.putMigration( source, target );
+					}
 				}else{
 					
-					links_entry.remove( source );
+					links_entry.remove( index, source );
 				}
 			}
 		}finally{
@@ -183,18 +195,43 @@ FMFileManagerImpl
 	public File
 	getFileLink(
 		TOTorrent	torrent,
+		int			file_index,
 		File		file )
 	{
+			// this function works on the currently defined links and will only accept
+			// them as valid if their 'from' location matches the 'file' being queried. 
+			// if not the origial file is returned, NOT null
+		
+			// These semantics are important during file-move operations as the move-file
+			// logic does not update links until AFTER the move is complete. If we don't
+			// verify the 'from' path in this case then teh old existing linkage overrides
+			// the new destination during the move process and causes it to fail with
+			// 'file already exists'. There is possibly an argument that we shouldn't
+			// take links into account when moving
+		
 		try{
 			links_mon.enter();
 			
-			CaseSensitiveFileMap	links_entry = getLinksEntry( torrent );
+			LinkFileMap	links_entry = getLinksEntry( torrent );
 
-			File	res = (File)links_entry.get( file );
+			LinkFileMap.Entry	entry = links_entry.getEntry( file_index, file );
 			
-			if ( res == null ){
+			File res = null;
+			
+			if ( entry == null ){
 				
 				res = file;
+				
+			}else{
+				
+				if ( file.equals( entry.getFromFile())){
+					
+					res = entry.getToFile();
+					
+				}else{
+					
+					res = file;
+				}
 			}
 			
 			// System.out.println( "getLink:" + file + " -> " + res );
