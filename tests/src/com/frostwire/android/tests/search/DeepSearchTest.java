@@ -26,7 +26,6 @@ import android.test.mock.MockApplication;
 import android.test.suitebuilder.annotation.LargeTest;
 
 import com.frostwire.android.core.ConfigurationManager;
-import com.frostwire.android.gui.transfers.AzureusManager;
 import com.frostwire.android.tests.TestUtils;
 import com.frostwire.search.SearchManagerImpl;
 import com.frostwire.search.SearchPerformer;
@@ -58,7 +57,7 @@ public class DeepSearchTest extends ApplicationTestCase<MockApplication> {
         super.setUp();
 
         ConfigurationManager.create(getApplication());
-        AzureusManager.initConfiguration();
+        //AzureusManager.initConfiguration();
     }
 
     @LargeTest

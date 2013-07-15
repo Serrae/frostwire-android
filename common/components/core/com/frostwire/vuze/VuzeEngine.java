@@ -58,7 +58,7 @@ public abstract class VuzeEngine {
 
     protected abstract File getTorrentsPath();
 
-    private void initConfiguration() {
+    protected void initConfiguration() {
         File azureusPath = getVuzePath();
 
         System.setProperty("azureus.config.path", azureusPath.getAbsolutePath());
@@ -68,15 +68,7 @@ public abstract class VuzeEngine {
         SystemProperties.APPLICATION_NAME = "azureus";
         SystemProperties.setUserPath(azureusPath.getAbsolutePath());
 
-        COConfigurationManager.setParameter("Auto Adjust Transfer Defaults", false);
-        COConfigurationManager.setParameter("General_sDefaultTorrent_Directory", getTorrentsPath().getAbsolutePath());
-
-        // network parameters, fine tunning for android
-        COConfigurationManager.setParameter("network.tcp.write.select.time", 1000);
-        COConfigurationManager.setParameter("network.tcp.write.select.min.time", 1000);
-        COConfigurationManager.setParameter("network.tcp.read.select.time", 1000);
-        COConfigurationManager.setParameter("network.tcp.read.select.min.time", 1000);
-        COConfigurationManager.setParameter("network.control.write.idle.time", 1000);
-        COConfigurationManager.setParameter("network.control.read.idle.time", 1000);
+        COConfigurationManager.setParameter(VuzeKeys.AUTO_ADJUST_TRANSFER_DEFAULTS, false);
+        COConfigurationManager.setParameter(VuzeKeys.GENERAL_DEFAULT_TORRENT_DIRECTORY, getTorrentsPath().getAbsolutePath());
     }
 }

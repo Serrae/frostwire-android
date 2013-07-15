@@ -60,6 +60,19 @@ public final class AndroidVuzeEngine extends VuzeEngine {
         return SystemUtils.getTorrentsDirectory();
     }
 
+    @Override
+    protected void initConfiguration() {
+        super.initConfiguration();
+
+        // network parameters, fine tunning for android
+        COConfigurationManager.setParameter("network.tcp.write.select.time", 1000);
+        COConfigurationManager.setParameter("network.tcp.write.select.min.time", 1000);
+        COConfigurationManager.setParameter("network.tcp.read.select.time", 1000);
+        COConfigurationManager.setParameter("network.tcp.read.select.min.time", 1000);
+        COConfigurationManager.setParameter("network.control.write.idle.time", 1000);
+        COConfigurationManager.setParameter("network.control.read.idle.time", 1000);
+    }
+
     /*
     private void loadMessages(Context context) {
         Map<String, String> map = new HashMap<String, String>();
