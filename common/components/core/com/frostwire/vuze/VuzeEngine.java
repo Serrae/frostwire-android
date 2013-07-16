@@ -23,8 +23,13 @@ import java.util.ArrayList;
 import java.util.concurrent.Callable;
 
 import org.gudy.azureus2.core3.config.COConfigurationManager;
+import org.gudy.azureus2.core3.download.DownloadManager;
 import org.gudy.azureus2.core3.global.GlobalManager;
+import org.gudy.azureus2.core3.global.GlobalManagerDownloadRemovalVetoException;
+import org.gudy.azureus2.core3.util.HashWrapper;
 import org.gudy.azureus2.core3.util.SystemProperties;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.aelitis.azureus.core.AzureusCore;
 import com.aelitis.azureus.core.AzureusCoreFactory;
@@ -36,6 +41,8 @@ import com.aelitis.azureus.core.AzureusCoreRunningListener;
  *
  */
 public abstract class VuzeEngine {
+
+    private static final Logger LOG = LoggerFactory.getLogger(VuzeEngine.class);
 
     private final AzureusCore core;
 
@@ -51,10 +58,22 @@ public abstract class VuzeEngine {
     }
 
     public void pause() {
+        core.getGlobalManager().pauseDownloads();
     }
 
     public void resume() {
         core.getGlobalManager().resumeDownloads();
+    }
+
+    public void remove(VuzeDownloadManager dm, boolean removeTorrent, boolean removeData) {
+        remove(dm.getDM(), removeTorrent, removeData);
+    }
+
+    public void remove(byte[] hash, boolean removeTorrent, boolean removeData) {
+        DownloadManager dm = core.getGlobalManager().getDownloadManager(new HashWrapper(hash));
+        if (dm != null) {
+            remove(dm, removeTorrent, removeData);
+        }
     }
 
     public void execute(final Runnable command) {
@@ -102,5 +121,13 @@ public abstract class VuzeEngine {
 
         COConfigurationManager.setParameter(VuzeKeys.AUTO_ADJUST_TRANSFER_DEFAULTS, false);
         COConfigurationManager.setParameter(VuzeKeys.GENERAL_DEFAULT_TORRENT_DIRECTORY, getTorrentsPath().getAbsolutePath());
+    }
+
+    private void remove(DownloadManager dm, boolean removeTorrent, boolean removeData) {
+        try {
+            core.getGlobalManager().removeDownloadManager(dm, removeTorrent, removeData);
+        } catch (GlobalManagerDownloadRemovalVetoException e) {
+            LOG.warn("Error removing download manager", e);
+        }
     }
 }
