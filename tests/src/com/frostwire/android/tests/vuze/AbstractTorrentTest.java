@@ -38,7 +38,7 @@ public abstract class AbstractTorrentTest extends AbstractApplicationTest {
     }
 
     private void awaitForVuze() {
-        VuzeManager.getInstance().getEngine().runSync(new Callable<Void>() {
+        VuzeManager.getInstance().getEngine().execute(new Callable<Void>() {
             @Override
             public Void call() throws Exception {
                 // nothing

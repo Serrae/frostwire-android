@@ -57,7 +57,7 @@ public abstract class VuzeEngine {
         core.getGlobalManager().resumeDownloads();
     }
 
-    public void runAsync(final Runnable command) {
+    public void execute(final Runnable command) {
         AzureusCoreFactory.addCoreRunningListener(new AzureusCoreRunningListener() {
             @Override
             public void azureusCoreRunning(AzureusCore core) {
@@ -66,7 +66,7 @@ public abstract class VuzeEngine {
         });
     }
 
-    public <V> V runSync(final Callable<V> task) {
+    public <V> V execute(final Callable<V> task) {
         final ArrayList<V> holder = new ArrayList<V>(1);
 
         // default return to null
