@@ -89,7 +89,7 @@ public abstract class VuzeEngine {
         final ArrayList<V> holder = new ArrayList<V>(1);
 
         // default return to null
-        holder.set(0, null);
+        holder.add(0, null);
 
         AzureusCoreFactory.addCoreRunningListener(new AzureusCoreRunningListener() {
             @Override
