@@ -37,7 +37,7 @@ import com.frostwire.android.gui.services.Engine;
 import com.frostwire.android.gui.views.AbstractActivity;
 import com.frostwire.android.gui.views.AbstractListFragment;
 import com.frostwire.android.gui.views.Refreshable;
-import com.frostwire.gui.upnp.UPnPManager;
+//import com.frostwire.gui.upnp.UPnPManager;
 
 /**
  * 
@@ -64,7 +64,7 @@ public class BrowsePeersFragment extends AbstractListFragment implements Refresh
         setRetainInstance(true);
 
         if (Engine.instance().isStarted() && ConfigurationManager.instance().getBoolean(Constants.PREF_KEY_NETWORK_USE_UPNP)) {
-            UPnPManager.instance().resume();
+            //UPnPManager.instance().resume();
         }
 
         setupAdapter();
@@ -83,7 +83,7 @@ public class BrowsePeersFragment extends AbstractListFragment implements Refresh
 
         if (refreshUPnPCount % 10 == 0) {
             if (Engine.instance().isStarted() && ConfigurationManager.instance().getBoolean(Constants.PREF_KEY_NETWORK_USE_UPNP)) {
-                UPnPManager.instance().refreshRemoteDevices();
+                //UPnPManager.instance().refreshRemoteDevices();
             }
         }
     }

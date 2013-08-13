@@ -41,7 +41,7 @@ import com.frostwire.android.gui.NetworkManager;
 import com.frostwire.android.gui.PeerManager;
 import com.frostwire.android.gui.activities.MainActivity;
 import com.frostwire.android.gui.httpserver.HttpServerManager;
-import com.frostwire.android.gui.transfers.AzureusManager;
+//import com.frostwire.android.gui.transfers.AzureusManager;
 import com.frostwire.android.gui.transfers.TransferManager;
 import com.frostwire.android.util.concurrent.ThreadPool;
 
@@ -153,12 +153,12 @@ public class EngineService extends Service implements IEngineService {
 
         Librarian.instance().invalidateCountCache();
 
-        AzureusManager.create(this);
+        //AzureusManager.create(this);
         //TransferManager.instance().loadTorrents();
 
-        if (AzureusManager.isCreated()) { // safe move
-            AzureusManager.instance().resume();
-        }
+        //if (AzureusManager.isCreated()) { // safe move
+        //    AzureusManager.instance().resume();
+        //}
 
         httpServerManager.start(NetworkManager.instance().getListeningPort());
 
@@ -177,7 +177,7 @@ public class EngineService extends Service implements IEngineService {
 
         httpServerManager.stop();
 
-        AzureusManager.instance().pause();
+        //AzureusManager.instance().pause();
 
         PeerManager.instance().clear();
 

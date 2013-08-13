@@ -5,8 +5,6 @@ import java.net.ConnectException;
 import java.net.UnknownHostException;
 import java.util.Date;
 
-import org.gudy.azureus2.core3.util.SystemTime;
-
 final class Debug {
 
     public static void printStackTrace(Throwable e) {
@@ -74,7 +72,7 @@ final class Debug {
             return;
         }
         String header = "DEBUG::";
-        header = header + new Date(SystemTime.getCurrentTime()).toString() + "::";
+        header = header + new Date(System.currentTimeMillis()).toString() + "::";
         String className;
         String methodName;
         int lineNumber;

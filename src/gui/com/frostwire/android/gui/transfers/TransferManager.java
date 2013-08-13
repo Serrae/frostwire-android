@@ -23,14 +23,14 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.gudy.azureus2.core3.download.DownloadManager;
-import org.gudy.azureus2.core3.global.GlobalManager;
+//import org.gudy.azureus2.core3.download.DownloadManager;
+//import org.gudy.azureus2.core3.global.GlobalManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.aelitis.azureus.core.AzureusCore;
-import com.aelitis.azureus.core.AzureusCoreFactory;
-import com.aelitis.azureus.core.AzureusCoreRunningListener;
+//import com.aelitis.azureus.core.AzureusCore;
+//import com.aelitis.azureus.core.AzureusCoreFactory;
+//import com.aelitis.azureus.core.AzureusCoreRunningListener;
 import com.frostwire.android.R;
 import com.frostwire.android.core.ConfigurationManager;
 import com.frostwire.android.core.Constants;
@@ -227,7 +227,7 @@ public final class TransferManager {
     }
 
     public long getDownloadsBandwidth() {
-        long torrenDownloadsBandwidth = AzureusManager.isCreated() ? AzureusManager.instance().getGlobalManager().getStats().getDataReceiveRate() / 1000 : 0;
+        long torrenDownloadsBandwidth = 0;//AzureusManager.isCreated() ? AzureusManager.instance().getGlobalManager().getStats().getDataReceiveRate() / 1000 : 0;
 
         long peerDownloadsBandwidth = 0;
         for (DownloadTransfer d : downloads) {
@@ -238,7 +238,7 @@ public final class TransferManager {
     }
 
     public double getUploadsBandwidth() {
-        long torrenUploadsBandwidth = AzureusManager.isCreated() ? AzureusManager.instance().getGlobalManager().getStats().getDataSendRate() / 1000 : 0;
+        long torrenUploadsBandwidth = 0;//AzureusManager.isCreated() ? AzureusManager.instance().getGlobalManager().getStats().getDataSendRate() / 1000 : 0;
 
         long peerUploadsBandwidth = 0;
         for (UploadTransfer u : uploads) {
@@ -271,50 +271,50 @@ public final class TransferManager {
     public void loadTorrents() {
         bittorrentDownloads.clear();
 
-        if (!AzureusManager.isCreated()) {
-            return;
-        }
-
-        AzureusCoreFactory.addCoreRunningListener(new AzureusCoreRunningListener() {
-
-            @Override
-            public void azureusCoreRunning(AzureusCore core) {
-                GlobalManager globalManager = AzureusManager.instance().getAzureusCore().getGlobalManager();
-                List<?> downloadManagers = globalManager.getDownloadManagers();
-
-                List<DownloadManager> downloads = new ArrayList<DownloadManager>();
-                for (Object obj : downloadManagers) {
-                    if (obj instanceof DownloadManager) {
-                        try {
-                            if (((DownloadManager) obj).getTorrent() != null && ((DownloadManager) obj).getTorrent().getHash() != null) {
-                                LOG.debug("Loading torrent with hash: " + ByteUtils.encodeHex(((DownloadManager) obj).getTorrent().getHash()));
-                                downloads.add((DownloadManager) obj);
-                            }
-                        } catch (Throwable e) {
-                            // ignore
-                            LOG.debug("error loading torrent (not the end of the world, keep going)");
-                        }
-                    }
-                }
-
-                boolean stop = false;
-                if (!ConfigurationManager.instance().getBoolean(Constants.PREF_KEY_TORRENT_SEED_FINISHED_TORRENTS)) {
-                    stop = true;
-                } else {
-                    if (!NetworkManager.instance().isDataWIFIUp() && ConfigurationManager.instance().getBoolean(Constants.PREF_KEY_TORRENT_SEED_FINISHED_TORRENTS_WIFI_ONLY)) {
-                        stop = true;
-                    }
-                }
-
-                for (DownloadManager dm : downloads) {
-                    if (stop && TorrentUtil.isComplete(dm)) {
-                        TorrentUtil.stop(dm);
-                    }
-
-                    bittorrentDownloads.add(BittorrentDownloadCreator.create(TransferManager.this, dm));
-                }
-            }
-        });
+//        if (!AzureusManager.isCreated()) {
+//            return;
+//        }
+//
+//        AzureusCoreFactory.addCoreRunningListener(new AzureusCoreRunningListener() {
+//
+//            @Override
+//            public void azureusCoreRunning(AzureusCore core) {
+//                GlobalManager globalManager = AzureusManager.instance().getAzureusCore().getGlobalManager();
+//                List<?> downloadManagers = globalManager.getDownloadManagers();
+//
+//                List<DownloadManager> downloads = new ArrayList<DownloadManager>();
+//                for (Object obj : downloadManagers) {
+//                    if (obj instanceof DownloadManager) {
+//                        try {
+//                            if (((DownloadManager) obj).getTorrent() != null && ((DownloadManager) obj).getTorrent().getHash() != null) {
+//                                LOG.debug("Loading torrent with hash: " + ByteUtils.encodeHex(((DownloadManager) obj).getTorrent().getHash()));
+//                                downloads.add((DownloadManager) obj);
+//                            }
+//                        } catch (Throwable e) {
+//                            // ignore
+//                            LOG.debug("error loading torrent (not the end of the world, keep going)");
+//                        }
+//                    }
+//                }
+//
+//                boolean stop = false;
+//                if (!ConfigurationManager.instance().getBoolean(Constants.PREF_KEY_TORRENT_SEED_FINISHED_TORRENTS)) {
+//                    stop = true;
+//                } else {
+//                    if (!NetworkManager.instance().isDataWIFIUp() && ConfigurationManager.instance().getBoolean(Constants.PREF_KEY_TORRENT_SEED_FINISHED_TORRENTS_WIFI_ONLY)) {
+//                        stop = true;
+//                    }
+//                }
+//
+//                for (DownloadManager dm : downloads) {
+//                    if (stop && TorrentUtil.isComplete(dm)) {
+//                        TorrentUtil.stop(dm);
+//                    }
+//
+//                    bittorrentDownloads.add(BittorrentDownloadCreator.create(TransferManager.this, dm));
+//                }
+//            }
+//        });
     }
 
     List<BittorrentDownload> getBittorrentDownloads() {
@@ -341,7 +341,7 @@ public final class TransferManager {
 
     public BittorrentDownload downloadTorrent(String uri) {
         try {
-            BittorrentDownload download = BittorrentDownloadCreator.create(this, new URI(uri));
+            BittorrentDownload download = null;//BittorrentDownloadCreator.create(this, new URI(uri));
 
             if (!(download instanceof InvalidBittorrentDownload)) {
                 bittorrentDownloads.add(download);
@@ -356,7 +356,7 @@ public final class TransferManager {
 
     private BittorrentDownload newBittorrentDownload(TorrentSearchResult sr) {
         try {
-            BittorrentDownload download = BittorrentDownloadCreator.create(this, sr);
+            BittorrentDownload download = null;//BittorrentDownloadCreator.create(this, sr);
 
             if (!(download instanceof InvalidBittorrentDownload)) {
                 bittorrentDownloads.add(download);

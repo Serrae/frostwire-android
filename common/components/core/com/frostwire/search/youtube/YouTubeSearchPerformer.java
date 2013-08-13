@@ -18,6 +18,7 @@
 
 package com.frostwire.search.youtube;
 
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
@@ -50,7 +51,7 @@ public class YouTubeSearchPerformer extends CrawlPagedWebSearchPerformer<YouTube
     @Override
     protected List<? extends SearchResult> crawlResult(YouTubeSearchResult sr, byte[] data) throws Exception {
         List<YouTubeCrawledSearchResult> list = new LinkedList<YouTubeCrawledSearchResult>();
-        List<YouTubeDownloadLink> ytLinks = new YouTubeDecrypter().decrypt(sr.getDetailsUrl());
+        List<YouTubeDownloadLink> ytLinks = Collections.emptyList();// new YouTubeDecrypter().decrypt(sr.getDetailsUrl());
 
         for (YouTubeDownloadLink link : ytLinks) {
             list.add(new YouTubeCrawledSearchResult(sr, link));

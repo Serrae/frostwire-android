@@ -64,11 +64,11 @@ import com.frostwire.android.core.providers.UniversalStore.Applications;
 import com.frostwire.android.core.providers.UniversalStore.Applications.ApplicationsColumns;
 import com.frostwire.android.core.providers.UniversalStore.Sharing;
 import com.frostwire.android.core.providers.UniversalStore.Sharing.SharingColumns;
-import com.frostwire.android.gui.transfers.TorrentUtil;
+//import com.frostwire.android.gui.transfers.TorrentUtil;
 import com.frostwire.android.gui.util.Apk;
 import com.frostwire.android.gui.util.SystemUtils;
 import com.frostwire.android.util.StringUtils;
-import com.frostwire.gui.upnp.UPnPManager;
+//import com.frostwire.gui.upnp.UPnPManager;
 import com.frostwire.util.FileUtils;
 
 /**
@@ -285,7 +285,7 @@ public final class Librarian {
     }
 
     public void scan(File file) {
-        scan(file, TorrentUtil.getIgnorableFiles());
+        //scan(file, TorrentUtil.getIgnorableFiles());
     }
 
     public Finger finger(boolean local) {
@@ -412,7 +412,7 @@ public final class Librarian {
 
     private void broadcastRefreshFinger() {
         context.sendBroadcast(new Intent(Constants.ACTION_REFRESH_FINGER));
-        UPnPManager.instance().refreshPing();
+        //UPnPManager.instance().refreshPing();
     }
 
     private void syncApplicationsProviderSupport() {
@@ -531,14 +531,14 @@ public final class Librarian {
     }
 
     private void syncMediaStoreSupport() {
-        Set<File> ignorableFiles = TorrentUtil.getIgnorableFiles();
-
-        syncMediaStore(Constants.FILE_TYPE_AUDIO, ignorableFiles);
-        syncMediaStore(Constants.FILE_TYPE_PICTURES, ignorableFiles);
-        syncMediaStore(Constants.FILE_TYPE_VIDEOS, ignorableFiles);
-        syncMediaStore(Constants.FILE_TYPE_RINGTONES, ignorableFiles);
-
-        scan(SystemUtils.getSaveDirectory(Constants.FILE_TYPE_DOCUMENTS));
+//        Set<File> ignorableFiles = TorrentUtil.getIgnorableFiles();
+//
+//        syncMediaStore(Constants.FILE_TYPE_AUDIO, ignorableFiles);
+//        syncMediaStore(Constants.FILE_TYPE_PICTURES, ignorableFiles);
+//        syncMediaStore(Constants.FILE_TYPE_VIDEOS, ignorableFiles);
+//        syncMediaStore(Constants.FILE_TYPE_RINGTONES, ignorableFiles);
+//
+//        scan(SystemUtils.getSaveDirectory(Constants.FILE_TYPE_DOCUMENTS));
     }
 
     private void syncMediaStore(byte fileType, Set<File> ignorableFiles) {

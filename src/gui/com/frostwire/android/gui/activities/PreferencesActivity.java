@@ -47,7 +47,7 @@ import com.frostwire.android.gui.views.preference.SimpleActionPreference;
 import com.frostwire.android.util.StorageMount;
 import com.frostwire.android.util.StorageUtils;
 import com.frostwire.android.util.StringUtils;
-import com.frostwire.gui.upnp.UPnPManager;
+//import com.frostwire.gui.upnp.UPnPManager;
 
 /**
  * See {@link ConfigurationManager}
@@ -181,9 +181,9 @@ public class PreferencesActivity extends PreferenceActivity {
             public boolean onPreferenceChange(Preference preference, Object newValue) {
                 boolean newVal = (Boolean) newValue;
                 if (newVal) {
-                    UPnPManager.instance().resume();
+                    //UPnPManager.instance().resume();
                 } else {
-                    UPnPManager.instance().pause();
+                    //UPnPManager.instance().pause();
                 }
                 return true;
             }
@@ -211,7 +211,7 @@ public class PreferencesActivity extends PreferenceActivity {
             @Override
             protected Void doInBackground(Void... params) {
                 Engine.instance().startServices();
-                UPnPManager.instance().resume();
+                //UPnPManager.instance().resume();
                 return null;
             }
 
@@ -235,7 +235,7 @@ public class PreferencesActivity extends PreferenceActivity {
         AsyncTask<Void, Void, Void> task = new AsyncTask<Void, Void, Void>() {
             @Override
             protected Void doInBackground(Void... params) {
-                UPnPManager.instance().pause();
+                //UPnPManager.instance().pause();
                 Engine.instance().stopServices(false);
                 return null;
             }
